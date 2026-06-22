@@ -178,6 +178,7 @@ class SemanticMeaningExtractor:
         )
         intent = "chart_request" if chart_requested and table_requested else ("table_analysis" if table_requested else None)
         chart_types = []
+        chart_token_set = set(_tokens(text))
         for chart_type, signals in [
             ("bar", {"bar", "bar graph", "bar chart"}),
             ("pie", {"pie", "pie graph", "pie chart"}),
@@ -185,7 +186,7 @@ class SemanticMeaningExtractor:
             ("scatter", {"scatter", "scatter plot"}),
             ("histogram", {"histogram"}),
         ]:
-            if any(signal in text for signal in signals):
+            if any(_signal_present(signal, text, chart_token_set) for signal in signals):
                 chart_types.append(chart_type)
         if chart_requested and not chart_types:
             chart_types.append("bar")

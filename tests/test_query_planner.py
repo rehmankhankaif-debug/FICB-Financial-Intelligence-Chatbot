@@ -144,6 +144,45 @@ def test_compare_revenue_trends_plan() -> None:
     assert plan.comparison["type"] == "revenue_trend"
 
 
+def test_anomaly_trends_do_not_force_an_unrequested_chart() -> None:
+    dataframe = pd.DataFrame(
+        {
+            "fuel_type": ["Diesel", "Petrol"],
+            "transmission": ["Manual", "Automatic"],
+            "price": [100, 200],
+        }
+    )
+    profile = TableProfiler().profile(dataframe, source_id="cars", filename="cars.csv")
+    query = "Identify unusual trends involving fuel_type, transmission, and price."
+
+    plan = QueryPlannerAgent(gemini_client=GeminiClient(api_key="", client=None)).plan(
+        query,
+        _rewritten(query),
+        available_sources=[{"source_id": "cars", "filename": "cars.csv", "file_type": "csv"}],
+        table_profiles=[profile],
+    )
+
+    assert plan.intent == "table_analysis"
+    assert plan.chart_requested is False
+
+
+def test_offline_spend_column_does_not_match_line_chart_substring() -> None:
+    dataframe = pd.DataFrame({"Date": ["2025-01", "2025-02"], "Offline_Spend": [100, 150]})
+    profile = TableProfiler().profile(dataframe, source_id="marketing", filename="marketing.csv")
+    query = "Overall Offline_Spend ka scene kaisa hai? Average batao."
+
+    plan = QueryPlannerAgent(gemini_client=GeminiClient(api_key="", client=None)).plan(
+        query,
+        _rewritten(query),
+        available_sources=[{"source_id": "marketing", "filename": "marketing.csv", "file_type": "csv"}],
+        table_profiles=[profile],
+    )
+
+    assert plan.intent == "table_analysis"
+    assert plan.chart_requested is False
+    assert plan.chart_types == []
+
+
 def test_key_insights_with_csv_source_routes_to_table_analysis() -> None:
     plan = QueryPlannerAgent(gemini_client=GeminiClient(api_key="", client=None)).plan(
         "give me key insights",

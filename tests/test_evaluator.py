@@ -45,6 +45,18 @@ def test_evaluator_scores_rag_citation_presence() -> None:
     assert report.metric_accuracy["hallucination_safety"] == 100.0
 
 
+def test_evaluator_executes_cited_numeric_document_comparison() -> None:
+    report = Evaluator().evaluate_files([Path("evaluation/sample_comparison_cases.json")])
+
+    assert report.total_cases == 1
+    assert report.passed_cases == 1
+    assert report.metric_accuracy["document_comparison_accuracy"] == 100.0
+    comparison = report.cases[0].actual["comparison"]
+    assert comparison["data"]["absolute_difference"] == 20_000_000.0
+    assert comparison["data"]["percentage_change"] == 20.0
+    assert comparison["citation_count"] == 2
+
+
 def test_evaluator_handles_missing_source_safely() -> None:
     evaluator = Evaluator()
     cases = evaluator.load_cases([Path("evaluation/sample_tool_selection_cases.json")])

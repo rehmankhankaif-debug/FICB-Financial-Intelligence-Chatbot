@@ -62,3 +62,24 @@ def test_mocked_gemini_response_returns_rewritten_query() -> None:
 
     assert rewritten.rewritten_query.startswith("Create a structured outline")
     assert rewritten.confidence == 0.91
+
+
+def test_spanish_csv_average_profit_is_rewritten_for_table_analysis() -> None:
+    rewritten = QueryRewriterAgent(gemini_client=GeminiClient(api_key="", client=None)).rewrite(
+        "¿Cuál es el beneficio mensual promedio según el archivo CSV?",
+        language="es",
+    )
+
+    assert rewritten.language == "es"
+    assert "average monthly profit" in rewritten.rewritten_query.lower()
+    assert "table data" in rewritten.rewritten_query.lower()
+
+
+def test_spanish_excel_revenue_trend_preserves_periods() -> None:
+    rewritten = QueryRewriterAgent(gemini_client=GeminiClient(api_key="", client=None)).rewrite(
+        "Muestra las tendencias de ingresos para Q1 y Q2 del archivo Excel.",
+        language="es",
+    )
+
+    assert "revenue trends" in rewritten.rewritten_query.lower()
+    assert "q1 and q2" in rewritten.rewritten_query.lower()

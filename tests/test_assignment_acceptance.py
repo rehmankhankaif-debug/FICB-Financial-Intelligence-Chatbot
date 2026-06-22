@@ -37,6 +37,7 @@ def test_assignment_excel_revenue_trend_routes_to_line_chart() -> None:
     assert plan.intent == "chart_request"
     assert plan.required_source_type == "table"
     assert "line" in plan.chart_types
+    assert any(item.get("operation") == "sum" for item in plan.aggregations)
 
 
 def test_assignment_two_pdf_expense_comparison_uses_both_documents() -> None:

@@ -1,0 +1,152 @@
+{
+  "cases": [
+    {
+      "id": "spanish_excel_revenue_trend",
+      "query": "Muestra las tendencias de ingresos para Q1 y Q2 del archivo Excel.",
+      "language": "es",
+      "available_sources": [
+        {"source_id": "ventas", "filename": "ventas.xlsx", "file_type": "xlsx"}
+      ],
+      "table_profiles": [
+        {
+          "source_id": "ventas",
+          "filename": "ventas.xlsx",
+          "shape": [2, 2],
+          "columns": ["Quarter", "Revenue"],
+          "normalized_columns": {"quarter": "Quarter", "revenue": "Revenue"},
+          "numeric_columns": ["Revenue"],
+          "categorical_columns": ["Quarter"],
+          "entity_candidate_columns": ["Quarter"],
+          "metric_candidate_columns": ["Revenue"],
+          "sample_values": {"Quarter": ["Q1", "Q2"], "Revenue": [100, 130]}
+        }
+      ],
+      "expected": {
+        "rewritten_contains": ["revenue", "Q1", "Q2"],
+        "intent": "chart_request",
+        "source_id": "ventas",
+        "tools": ["table_analysis_tool", "chart_tool"],
+        "metrics_contains": ["revenue"],
+        "aggregations_contains": ["sum"],
+        "grouping_contains": ["Quarter"],
+        "chart_type": "line"
+      }
+    },
+    {
+      "id": "spanish_csv_average_monthly_profit",
+      "query": "¿Cuál es el beneficio mensual promedio según el archivo CSV?",
+      "language": "es",
+      "available_sources": [
+        {"source_id": "beneficio", "filename": "beneficio.csv", "file_type": "csv"}
+      ],
+      "table_profiles": [
+        {
+          "source_id": "beneficio",
+          "filename": "beneficio.csv",
+          "shape": [3, 2],
+          "columns": ["Month", "Profit"],
+          "normalized_columns": {"month": "Month", "profit": "Profit"},
+          "numeric_columns": ["Profit"],
+          "categorical_columns": ["Month"],
+          "entity_candidate_columns": ["Month"],
+          "metric_candidate_columns": ["Profit"],
+          "sample_values": {"Month": ["Jan", "Feb"], "Profit": [100, 300]}
+        }
+      ],
+      "expected": {
+        "rewritten_contains": ["average", "profit"],
+        "intent": "table_analysis",
+        "source_id": "beneficio",
+        "tools": ["table_analysis_tool"],
+        "metrics_contains": ["profit"],
+        "aggregations_contains": ["mean"],
+        "grouping_contains": ["month"]
+      },
+      "csv_case": {
+        "data": [
+          {"Month": "Jan", "Profit": 100},
+          {"Month": "Jan", "Profit": 300},
+          {"Month": "Feb", "Profit": 500}
+        ],
+        "operation": {
+          "operation": "groupby",
+          "group_by": ["Month"],
+          "aggregations": [{"column": "Profit", "agg": "mean", "alias": "mean_Profit"}]
+        },
+        "expected": {
+          "data": {},
+          "table": [
+            {"Month": "Feb", "mean_Profit": 500.0},
+            {"Month": "Jan", "mean_Profit": 200.0}
+          ]
+        }
+      }
+    },
+    {
+      "id": "spanish_pdf_grounded_revenue",
+      "query": "¿Cuáles son las tendencias de ingresos del último trimestre según el informe adjunto?",
+      "language": "es",
+      "available_sources": [
+        {"source_id": "informe", "filename": "informe.pdf", "file_type": "pdf"}
+      ],
+      "document_metadata": [
+        {"source_id": "informe", "filename": "informe.pdf", "chunk_count": 1}
+      ],
+      "expected": {
+        "rewritten_contains": ["revenue", "trends"],
+        "intent": "rag_question",
+        "source_id": "informe",
+        "tools": ["rag_qa_tool"],
+        "requires_citations": true
+      },
+      "rag_case": {
+        "requires_citations": true,
+        "retrieved_chunks": [
+          {
+            "source_id": "informe",
+            "filename": "informe.pdf",
+            "source_type": "pdf",
+            "chunk_id": "informe-3",
+            "page": 3,
+            "score": 0.96,
+            "content": "Los ingresos del último trimestre aumentaron un 12% por el crecimiento de las ventas."
+          }
+        ]
+      },
+      "hallucination_case": {
+        "grounded_payload": {"value": "12%"}
+      }
+    },
+    {
+      "id": "hinglish_csv_average_profit",
+      "query": "CSV se monthly profit ka average batao.",
+      "language": "hi-en",
+      "available_sources": [
+        {"source_id": "profit", "filename": "profit.csv", "file_type": "csv"}
+      ],
+      "table_profiles": [
+        {
+          "source_id": "profit",
+          "filename": "profit.csv",
+          "shape": [2, 2],
+          "columns": ["month", "profit"],
+          "normalized_columns": {"month": "month", "profit": "profit"},
+          "numeric_columns": ["profit"],
+          "categorical_columns": ["month"],
+          "entity_candidate_columns": ["month"],
+          "metric_candidate_columns": ["profit"],
+          "sample_values": {"month": ["Jan", "Feb"], "profit": [100, 200]}
+        }
+      ],
+      "expected": {
+        "rewritten_contains": ["profit"],
+        "intent": "table_analysis",
+        "source_id": "profit",
+        "tools": ["table_analysis_tool"],
+        "metrics_contains": ["profit"],
+        "aggregations_contains": ["mean"],
+        "grouping_contains": ["month"]
+      }
+    }
+  ]
+}

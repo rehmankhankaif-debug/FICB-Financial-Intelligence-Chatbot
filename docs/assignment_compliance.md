@@ -22,10 +22,10 @@ Gemini does not calculate table answers. It rewrites, plans, or narrates verifie
 
 ## Assignment examples
 
-All seven examples are regression-tested in `tests/test_assignment_acceptance.py`:
+All seven examples have routing contracts in `tests/test_assignment_acceptance.py` and real file/tool execution coverage in `tests/test_assignment_end_to_end.py`:
 
 1. Excel Q1/Q2 revenue trends route to pandas plus a line chart.
-2. 2023/2022 PDF expense comparison selects both documents.
+2. 2023/2022 PDF expense comparison extracts cited values and calculates absolute and percentage change.
 3. Average monthly CSV profit routes to deterministic mean aggregation.
 4. DOCX market-outlook summary routes to the summarizer.
 5. Top-five Excel products route to deterministic ranking.
@@ -36,6 +36,7 @@ All seven examples are regression-tested in `tests/test_assignment_acceptance.py
 
 - Configurable English, Hinglish, and Spanish.
 - Multi-source comparison and balanced document retrieval.
+- Deterministic cross-PDF financial comparison with currency/scale normalization and page/chunk citations.
 - PDF text/table extraction, visual metadata, and optional Tesseract OCR.
 - RAG citations, reranking, evidence validation, and prompt-injection warnings.
 - SHA-256 duplicate detection and malicious-content/unsafe-archive checks.
@@ -56,8 +57,8 @@ All seven examples are regression-tested in `tests/test_assignment_acceptance.py
 ## Submission checklist
 
 - [x] Source, setup, architecture, tool documentation, tests, Docker, Compose, CI, and local demo flow
-- [ ] Re-initialize Git when the owner is ready and review ignored files
-- [ ] Rotate the exposed Gemini key before pushing
+- [x] Public Git repository initialized with secrets, uploads, databases, logs, and virtual environments ignored
+- [x] Reproducible benchmark gate included in GitHub Actions
 - [ ] Run container validation on a machine with Docker
 - [ ] Record/deploy the final demo and attach its URL or video
 
@@ -70,19 +71,11 @@ docker compose config -q
 docker compose up --build
 ```
 
-When ready to restore Git:
-
-```bash
-git init
-git add .
-git status
-git commit -m "Complete financial intelligence chatbot assignment"
-```
-
 Never commit `.env`, `data/`, logs, uploads, databases, or the virtual environment.
 
 ## Latest local verification
 
-- Assignment and implementation suite: 281 tests passed in two isolated alphabetical groups (111 + 170).
-- The same complete suite in one long-lived pytest process showed an order/state-related pathlib stall after 72 passes; no assertion failed. The isolated groups are green, but the combined-process stall should remain visible rather than being misreported.
+- Full implementation suite: 300 tests passed in one run.
+- Reproducible committed benchmark suite: 394/394 cases passed (100.00%).
+- The benchmark runner executes committed cases on clean clones and exits non-zero on any failed case or sub-100 configured gate.
 - Docker runtime verification was not available because Docker CLI is not installed on the current Mac environment.

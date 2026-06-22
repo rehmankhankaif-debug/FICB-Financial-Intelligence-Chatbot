@@ -118,6 +118,7 @@ class QueryRewriterAgent:
         )
 
     def _spanish_financial_rewrite(self, text: str) -> str:
+        table_context = any(term in text for term in ["csv", "excel", "tabla", "datos", "archivo"])
         if any(term in text for term in ["ingresos", "ventas", "beneficio", "gastos"]):
             metric = "revenue"
             if "beneficio" in text:
@@ -125,7 +126,15 @@ class QueryRewriterAgent:
             elif "gastos" in text:
                 metric = "expenses"
             if any(term in text for term in ["tendencia", "tendencias"]):
+                if table_context:
+                    periods = " Q1 and Q2" if "q1" in text and "q2" in text else ""
+                    return "Show {0} trends for{1} from the attached Excel or CSV file.".format(metric, periods)
                 return "Analyze {0} trends for the last quarter according to the attached report.".format(metric)
+            if table_context and any(term in text for term in ["promedio", "media"]):
+                monthly = " monthly" if any(term in text for term in ["mensual", "mes"]) else ""
+                return "Calculate the average{0} {1} from the uploaded table data.".format(monthly, metric)
+            if table_context and any(term in text for term in ["total", "suma"]):
+                return "Calculate total {0} from the uploaded table data.".format(metric)
             return "Find {0} in the attached report.".format(metric)
         if any(term in text for term in ["resumir", "resumen"]):
             return "Summarize the attached report."

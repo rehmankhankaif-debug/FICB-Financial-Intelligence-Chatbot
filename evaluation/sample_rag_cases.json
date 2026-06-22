@@ -6,11 +6,14 @@
       "expected": {},
       "rag_case": {
         "requires_citations": true,
-        "citation_count": 1,
         "retrieved_chunks": [
           {
             "source_id": "report",
+            "filename": "risk_report.pdf",
+            "source_type": "pdf",
             "chunk_id": "risk_1",
+            "page": 4,
+            "score": 0.95,
             "content": "The report identifies liquidity risk as a key concern."
           }
         ]
@@ -28,7 +31,17 @@
       "expected": {},
       "rag_case": {
         "requires_citations": true,
-        "citation_count": 2
+        "retrieved_chunks": [
+          {
+            "source_id": "growth_report",
+            "filename": "growth_report.pdf",
+            "source_type": "pdf",
+            "chunk_id": "growth_1",
+            "page": 8,
+            "score": 0.94,
+            "content": "Revenue growth was 12% during the reported period."
+          }
+        ]
       },
       "hallucination_case": {
         "answer": "Revenue growth was 12%.",

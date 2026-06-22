@@ -4,6 +4,7 @@ from typing import Any, Dict, List
 
 from src.models.tool import ToolResult
 from src.tools.base import BaseTool
+from src.tools.financial_comparison import compare_document_financial_metrics
 
 
 class CompareTool(BaseTool):
@@ -28,6 +29,32 @@ class CompareTool(BaseTool):
             successful = [item for item in items if isinstance(item, dict) and item.get("success")]
             source_rows = self._source_rows(successful)
             source_count = len({row.get("source_id") for row in source_rows if row.get("source_id")})
+            financial_comparison = compare_document_financial_metrics(
+                self._retrieved_chunks(successful),
+                input_payload.get("query_plan") or {},
+            )
+            if financial_comparison:
+                comparison_data = dict(financial_comparison["data"])
+                comparison_data.update(
+                    {
+                        "input_count": len(items),
+                        "successful_input_count": len(successful),
+                    }
+                )
+                return ToolResult(
+                    success=True,
+                    tool_name=self.name,
+                    data=comparison_data,
+                    answer=financial_comparison["answer"],
+                    table=financial_comparison["table"],
+                    citations=financial_comparison["citations"],
+                    confidence=0.92,
+                    warnings=financial_comparison["warnings"],
+                    metadata={
+                        "compared_tools": [item.get("tool_name") for item in successful],
+                        "comparison_type": "numeric_financial",
+                    },
+                )
             warnings = []
             if len(successful) < 2 and source_count < 2:
                 warnings.append("Comparison has fewer than two successful inputs.")
@@ -101,3 +128,11 @@ class CompareTool(BaseTool):
                     row["answer"] = (row["answer"] + " " + str(chunk.get("content"))).strip()
             rows.extend(grouped.values())
         return rows
+
+    def _retrieved_chunks(self, successful: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        chunks: List[Dict[str, Any]] = []
+        for item in successful:
+            for chunk in (item.get("data") or {}).get("retrieved_chunks", []):
+                if isinstance(chunk, dict):
+                    chunks.append(dict(chunk))
+        return chunks

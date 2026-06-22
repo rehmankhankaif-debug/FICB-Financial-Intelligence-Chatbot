@@ -243,7 +243,11 @@ class QueryPlannerAgent:
         grouping = self._extract_grouping(text, token_set)
         entities = self._extract_entities(text)
         filters = self._extract_filters(text, token_set)
-        trend_visual_requested = any(term in text for term in ["trend", "trends"]) and self._has_source_type(available_sources, TABLE_FILE_TYPES)
+        trend_visual_requested = (
+            any(_term_present(term, text, token_set) for term in ["trend", "trends"])
+            and not any(_term_present(term, text, token_set) for term in ["anomaly", "anomalies", "unusual"])
+            and self._has_source_type(available_sources, TABLE_FILE_TYPES)
+        )
         chart_requested = any(signal in text for signal in CHART_SIGNALS) or "pie" in text or trend_visual_requested
         chart_types = self._extract_chart_types(text)
         if trend_visual_requested and not chart_types:
@@ -413,8 +417,25 @@ class QueryPlannerAgent:
                 plan.metrics = deterministic_metrics or [{"name": "count", "confidence": 0.8}]
             if not plan.aggregations:
                 plan.aggregations = deterministic_aggregations or [{"operation": "count", "confidence": 0.8}]
+            if any(term in text for term in ("trend", "trends")):
+                trend_aggregation = self._trend_aggregation(plan.metrics)
+                aggregation_names = {
+                    str(item.get("operation") or item.get("agg") or "").lower()
+                    for item in plan.aggregations
+                    if isinstance(item, dict)
+                }
+                if trend_aggregation and (not aggregation_names or aggregation_names == {"count"}):
+                    plan.aggregations = [{"operation": trend_aggregation, "confidence": 0.9}]
             if not plan.grouping:
                 plan.grouping = deterministic_grouping
+            if not plan.grouping and any(term in text for term in ("trend", "trends")):
+                entity_fields = [
+                    str(item.get("field") or "")
+                    for item in plan.entities
+                    if isinstance(item, dict) and item.get("field")
+                ]
+                if entity_fields and len(set(entity_fields)) == 1:
+                    plan.grouping = [entity_fields[0]]
             if not plan.filters:
                 plan.filters = deterministic_filters
             if not plan.sorting:
@@ -479,6 +500,14 @@ class QueryPlannerAgent:
             plan.confidence = max(normalize_confidence(plan.confidence), 0.76)
             plan.reasoning_short = "Summary request stabilized to document summarization because a document source is available."
         return plan
+
+    def _trend_aggregation(self, metrics: List[Dict[str, Any]]) -> Optional[str]:
+        names = {_metric_name(item) for item in metrics or []}
+        if names.intersection({"revenue", "sales", "profit", "income", "expenses", "cost", "runs"}):
+            return "sum"
+        if names.intersection({"price", "margin", "strike_rate", "mileage", "rate"}):
+            return "mean"
+        return None
 
     def _is_table_insight_query(self, text: str, available_sources: List[Any]) -> bool:
         if not self._has_source_type(available_sources, TABLE_FILE_TYPES):
@@ -612,6 +641,7 @@ class QueryPlannerAgent:
 
     def _extract_chart_types(self, text: str) -> List[str]:
         chart_types: List[str] = []
+        token_set = set(_tokens(text))
         for chart_type, signals in [
             ("bar", {"bar", "bar graph", "bar chart"}),
             ("pie", {"pie", "pie graph", "pie chart"}),
@@ -619,7 +649,7 @@ class QueryPlannerAgent:
             ("scatter", {"scatter", "scatter plot"}),
             ("histogram", {"histogram"}),
         ]:
-            if any(signal in text for signal in signals):
+            if any(_term_present(signal, text, token_set) for signal in signals):
                 chart_types.append(chart_type)
         if any(signal in text for signal in CHART_SIGNALS) and not chart_types:
             chart_types.append("bar")

@@ -34,3 +34,9 @@ jobs:
           LOG_LEVEL: INFO
           BLOCK_PRIVATE_URLS: "true"
         run: python -m pytest -q
+
+      - name: Run reproducible assignment benchmarks
+        env:
+          APP_ENV: ci
+          BLOCK_PRIVATE_URLS: "true"
+        run: python evaluation/run_evaluation.py --check-only --minimum-accuracy 100

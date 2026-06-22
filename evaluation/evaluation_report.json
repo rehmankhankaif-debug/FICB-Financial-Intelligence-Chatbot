@@ -1,6 +1,6 @@
 {
-  "total_cases": 289,
-  "passed_cases": 289,
+  "total_cases": 394,
+  "passed_cases": 394,
   "accuracy_percentage": 100.0,
   "metric_accuracy": {
     "query_rewrite_quality": 100.0,
@@ -11,6 +11,7 @@
     "csv_answer_accuracy": 100.0,
     "rag_citation_presence": 100.0,
     "hallucination_safety": 100.0,
+    "document_comparison_accuracy": 100.0,
     "error_handling": 100.0
   },
   "failed_cases": [],
@@ -197,7 +198,12 @@
         "tools": [
           "summarize_tool"
         ],
-        "warnings": []
+        "warnings": [],
+        "rag": {
+          "success": true,
+          "answer": "The annual report covers financial performance, operating highlights, principal risks, and the outlook for the next period.",
+          "citation_count": 1
+        }
       },
       "expected": {
         "rewritten_contains": [
@@ -231,13 +237,18 @@
         "rewritten_query": "Compare revenue trends in CSV with annual report PDF.",
         "intent": "compare_documents",
         "source_id": "annual_report_pdf",
-        "source_type": "document",
+        "source_type": "mixed",
         "tools": [
           "table_analysis_tool",
           "rag_qa_tool",
           "compare_tool"
         ],
-        "warnings": []
+        "warnings": [],
+        "rag": {
+          "success": true,
+          "answer": "Revenue increased from USD 1,000 thousand in 2022 to USD 1,200 thousand in 2023, continuing the positive trend.",
+          "citation_count": 1
+        }
       },
       "expected": {
         "rewritten_contains": [
@@ -245,7 +256,7 @@
           "revenue"
         ],
         "intent": "compare_documents",
-        "source_type": "table|document",
+        "source_type": "mixed",
         "tools": [
           "table_analysis_tool",
           "rag_qa_tool",
@@ -410,8 +421,8 @@
       }
     },
     {
-      "case_id": "rag_outline_pdf_citations",
-      "query": "Outline this PDF",
+      "case_id": "rag_citation_presence",
+      "query": "What risk is mentioned in the report?",
       "passed": true,
       "scores": {
         "query_rewrite_quality": 1.0,
@@ -426,30 +437,25 @@
       },
       "failures": [],
       "actual": {
-        "rewritten_query": "Outline this PDF",
-        "intent": "summarize_document",
-        "source_id": "annual_report_pdf",
-        "source_type": "document",
-        "tools": [
-          "summarize_tool"
+        "rewritten_query": "What risk is mentioned in the report?",
+        "intent": "rag_question",
+        "source_id": null,
+        "source_type": "",
+        "tools": [],
+        "warnings": [
+          "Missing required uploaded source for intent: rag_question"
         ],
-        "warnings": []
+        "rag": {
+          "success": true,
+          "answer": "The report identifies liquidity risk as a key concern.",
+          "citation_count": 1
+        }
       },
-      "expected": {
-        "rewritten_contains": [
-          "outline"
-        ],
-        "intent": "summarize_document",
-        "source_id": "annual_report_pdf",
-        "tools": [
-          "summarize_tool"
-        ],
-        "requires_citations": true
-      }
+      "expected": {}
     },
     {
-      "case_id": "rag_missing_citation_risk",
-      "query": "What risks are in the report?",
+      "case_id": "rag_grounded_number",
+      "query": "What growth rate is cited in the report?",
       "passed": true,
       "scores": {
         "query_rewrite_quality": 1.0,
@@ -464,26 +470,21 @@
       },
       "failures": [],
       "actual": {
-        "rewritten_query": "What risks are in the report?",
-        "intent": "rag_question",
-        "source_id": "risk_report_pdf",
-        "source_type": "document",
-        "tools": [
-          "rag_qa_tool"
+        "rewritten_query": "What growth rate is cited in the report?",
+        "intent": "table_analysis",
+        "source_id": null,
+        "source_type": "",
+        "tools": [],
+        "warnings": [
+          "Missing required uploaded source for intent: table_analysis"
         ],
-        "warnings": []
+        "rag": {
+          "success": true,
+          "answer": "Revenue growth was 12% during the reported period.",
+          "citation_count": 1
+        }
       },
-      "expected": {
-        "rewritten_contains": [
-          "risks"
-        ],
-        "intent": "rag_question",
-        "source_id": "risk_report_pdf",
-        "tools": [
-          "rag_qa_tool"
-        ],
-        "requires_citations": true
-      }
+      "expected": {}
     },
     {
       "case_id": "tool_chart_chain",
@@ -583,7 +584,7 @@
         "rewritten_query": "compare revenue trends in csv with annual report",
         "intent": "compare_documents",
         "source_id": "revenue_csv",
-        "source_type": "table",
+        "source_type": "mixed",
         "tools": [
           "table_analysis_tool",
           "rag_qa_tool",
@@ -597,7 +598,7 @@
           "revenue"
         ],
         "intent": "compare_documents",
-        "source_type": "table|document",
+        "source_type": "mixed",
         "tools": [
           "table_analysis_tool",
           "rag_qa_tool",
@@ -11912,6 +11913,4383 @@
           "gender"
         ],
         "chart_requested": true
+      }
+    },
+    {
+      "case_id": "matches_csv_aggregation_56",
+      "query": "Overall result_margin ka scene kaisa hai? Average batao.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Overall result_margin ka scene kaisa hai? Average batao.",
+        "intent": "table_analysis",
+        "source_id": "matches",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "matches",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "rewritten_contains": [
+          "result_margin"
+        ],
+        "metrics_contains": [
+          "result_margin"
+        ],
+        "aggregations_contains": [
+          "mean"
+        ]
+      }
+    },
+    {
+      "case_id": "matches_csv_filtering_64",
+      "query": "If League is considered separately, records ka volume kitna hai?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "If League is considered separately, records ka volume kitna hai?",
+        "intent": "table_analysis",
+        "source_id": "matches",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "matches",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "rewritten_contains": [
+          "League"
+        ],
+        "entities_contains": [
+          "League"
+        ],
+        "aggregations_contains": [
+          "count"
+        ]
+      }
+    },
+    {
+      "case_id": "matches_csv_grouping_48",
+      "query": "Does match_type preference change across result?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Does match_type preference change across result?",
+        "intent": "table_analysis",
+        "source_id": "matches",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "matches",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "grouping_contains": [
+          "match_type",
+          "result"
+        ],
+        "aggregations_contains": [
+          "count"
+        ]
+      }
+    },
+    {
+      "case_id": "matches_csv_trend_analysis_51",
+      "query": "Which season has the highest average result_margin?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Which season has the highest average result_margin?",
+        "intent": "table_analysis",
+        "source_id": "matches",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "matches",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "result_margin"
+        ],
+        "grouping_contains": [
+          "season"
+        ],
+        "aggregations_contains": [
+          "mean"
+        ],
+        "sorting_direction": "desc"
+      }
+    },
+    {
+      "case_id": "matches_csv_comparisons_51",
+      "query": "Compare League and Semi Final across result_margin.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Compare League and Semi Final across result_margin.",
+        "intent": "table_analysis",
+        "source_id": "matches",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "matches",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "entities_contains": [
+          "League",
+          "Semi Final"
+        ],
+        "grouping_contains": [
+          "match_type"
+        ]
+      }
+    },
+    {
+      "case_id": "matches_csv_ranking_58",
+      "query": "Kaunse city highest average result_margin dikha rahe hain?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Kaunse city highest average result_margin dikha rahe hain?",
+        "intent": "table_analysis",
+        "source_id": "matches",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "matches",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "result_margin"
+        ],
+        "grouping_contains": [
+          "city"
+        ],
+        "aggregations_contains": [
+          "mean"
+        ],
+        "sorting_direction": "desc"
+      }
+    },
+    {
+      "case_id": "matches_csv_top_k_41",
+      "query": "Show top 5 city by average result_margin.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Show top 5 city by average result_margin.",
+        "intent": "table_analysis",
+        "source_id": "matches",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "matches",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "result_margin"
+        ],
+        "grouping_contains": [
+          "city"
+        ],
+        "aggregations_contains": [
+          "mean"
+        ],
+        "limit": 5,
+        "sorting_direction": "desc"
+      }
+    },
+    {
+      "case_id": "matches_csv_bottom_k_50",
+      "query": "Which 5 city are weakest by average result_margin?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Which 5 city are weakest by average result_margin?",
+        "intent": "table_analysis",
+        "source_id": "matches",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "matches",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "result_margin"
+        ],
+        "grouping_contains": [
+          "city"
+        ],
+        "aggregations_contains": [
+          "mean"
+        ],
+        "limit": 5,
+        "sorting_direction": "asc"
+      }
+    },
+    {
+      "case_id": "matches_csv_anomaly_detection_72",
+      "query": "Identify unusual trends involving match_type, result, and result_margin.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Identify unusual trends involving match_type, result, and result_margin.",
+        "intent": "table_analysis",
+        "source_id": "matches",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "matches",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "grouping_contains": [
+          "match_type",
+          "result"
+        ],
+        "metrics_contains": [
+          "result_margin"
+        ]
+      }
+    },
+    {
+      "case_id": "matches_csv_correlation_exploration_78",
+      "query": "Are result_margin and target_runs related, or is there a visible relationship?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Are result_margin and target_runs related, or is there a visible relationship?",
+        "intent": "table_analysis",
+        "source_id": "matches",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "matches",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "result_margin",
+          "target_runs"
+        ],
+        "analysis_type": "correlation"
+      }
+    },
+    {
+      "case_id": "matches_csv_segmentation_95",
+      "query": "If I only consider records above the median result_margin, does match_type distribution change?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "If I only consider records above the median result_margin, does match_type distribution change?",
+        "intent": "table_analysis",
+        "source_id": "matches",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "matches",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "result_margin"
+        ],
+        "grouping_contains": [
+          "match_type"
+        ],
+        "filters_contain_operator": [
+          "gt"
+        ]
+      }
+    },
+    {
+      "case_id": "matches_csv_executive_summaries_78",
+      "query": "Give me an executive summary of this dataset with key risks and opportunities.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Give me an executive summary of this dataset with key risks and opportunities.",
+        "intent": "table_analysis",
+        "source_id": "matches",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "matches",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "dataset_summary"
+        ]
+      }
+    },
+    {
+      "case_id": "matches_csv_chart_generation_66",
+      "query": "Show the relationship between match_type and result using a chart.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Show the relationship between match_type and result using a chart.",
+        "intent": "chart_request",
+        "source_id": "matches",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool",
+          "chart_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "chart_request",
+        "source_id": "matches",
+        "tools": [
+          "table_analysis_tool",
+          "chart_tool"
+        ],
+        "grouping_contains": [
+          "match_type",
+          "result"
+        ],
+        "chart_requested": true
+      }
+    },
+    {
+      "case_id": "matches_csv_business_insights_62",
+      "query": "What hidden patterns and business insights exist in this data?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "What hidden patterns and business insights exist in this data?",
+        "intent": "table_analysis",
+        "source_id": "matches",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "matches",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "dataset_summary"
+        ]
+      }
+    },
+    {
+      "case_id": "matches_csv_follow_up_questions_59",
+      "query": "Now break that down by match_type and explain what changed.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Now break that down by match_type and explain what changed.",
+        "intent": "table_analysis",
+        "source_id": "matches",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "matches",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "grouping_contains": [
+          "match_type"
+        ]
+      }
+    },
+    {
+      "case_id": "matches_csv_multilingual_questions_54",
+      "query": "match_type ka overall trend kya hai? Chart bhi dikhao.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "match_type ka overall trend kya hai? Chart bhi dikhao.",
+        "intent": "chart_request",
+        "source_id": "matches",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool",
+          "chart_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "chart_request",
+        "source_id": "matches",
+        "tools": [
+          "table_analysis_tool",
+          "chart_tool"
+        ],
+        "grouping_contains": [
+          "match_type"
+        ],
+        "chart_requested": true
+      }
+    },
+    {
+      "case_id": "deliveries_csv_aggregation_55",
+      "query": "Overall batsman_runs ka scene kaisa hai? Average batao.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Overall batsman_runs ka scene kaisa hai? Average batao.",
+        "intent": "table_analysis",
+        "source_id": "deliveries",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "deliveries",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "rewritten_contains": [
+          "batsman_runs"
+        ],
+        "metrics_contains": [
+          "batsman_runs"
+        ],
+        "aggregations_contains": [
+          "mean"
+        ]
+      }
+    },
+    {
+      "case_id": "deliveries_csv_filtering_65",
+      "query": "If legbyes is considered separately, records ka volume kitna hai?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "If legbyes is considered separately, records ka volume kitna hai?",
+        "intent": "table_analysis",
+        "source_id": "deliveries",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "deliveries",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "rewritten_contains": [
+          "legbyes"
+        ],
+        "entities_contains": [
+          "legbyes"
+        ],
+        "aggregations_contains": [
+          "count"
+        ]
+      }
+    },
+    {
+      "case_id": "deliveries_csv_grouping_49",
+      "query": "Does extras_type preference change across batter?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Does extras_type preference change across batter?",
+        "intent": "table_analysis",
+        "source_id": "deliveries",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "deliveries",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "grouping_contains": [
+          "extras_type",
+          "batter"
+        ],
+        "aggregations_contains": [
+          "count"
+        ]
+      }
+    },
+    {
+      "case_id": "deliveries_csv_trend_analysis_55",
+      "query": "Which extras_type has the highest average batsman_runs?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Which extras_type has the highest average batsman_runs?",
+        "intent": "table_analysis",
+        "source_id": "deliveries",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "deliveries",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "batsman_runs"
+        ],
+        "grouping_contains": [
+          "extras_type"
+        ],
+        "aggregations_contains": [
+          "mean"
+        ],
+        "sorting_direction": "desc"
+      }
+    },
+    {
+      "case_id": "deliveries_csv_comparisons_46",
+      "query": "Compare legbyes and wides across batsman_runs.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Compare legbyes and wides across batsman_runs.",
+        "intent": "table_analysis",
+        "source_id": "deliveries",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "deliveries",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "entities_contains": [
+          "legbyes",
+          "wides"
+        ],
+        "grouping_contains": [
+          "extras_type"
+        ]
+      }
+    },
+    {
+      "case_id": "deliveries_csv_ranking_65",
+      "query": "Kaunse batting_team highest average batsman_runs dikha rahe hain?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Kaunse batting_team highest average batsman_runs dikha rahe hain?",
+        "intent": "table_analysis",
+        "source_id": "deliveries",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "deliveries",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "batsman_runs"
+        ],
+        "grouping_contains": [
+          "batting_team"
+        ],
+        "aggregations_contains": [
+          "mean"
+        ],
+        "sorting_direction": "desc"
+      }
+    },
+    {
+      "case_id": "deliveries_csv_top_k_48",
+      "query": "Show top 5 batting_team by average batsman_runs.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Show top 5 batting_team by average batsman_runs.",
+        "intent": "table_analysis",
+        "source_id": "deliveries",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "deliveries",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "batsman_runs"
+        ],
+        "grouping_contains": [
+          "batting_team"
+        ],
+        "aggregations_contains": [
+          "mean"
+        ],
+        "limit": 5,
+        "sorting_direction": "desc"
+      }
+    },
+    {
+      "case_id": "deliveries_csv_bottom_k_57",
+      "query": "Which 5 batting_team are weakest by average batsman_runs?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Which 5 batting_team are weakest by average batsman_runs?",
+        "intent": "table_analysis",
+        "source_id": "deliveries",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "deliveries",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "batsman_runs"
+        ],
+        "grouping_contains": [
+          "batting_team"
+        ],
+        "aggregations_contains": [
+          "mean"
+        ],
+        "limit": 5,
+        "sorting_direction": "asc"
+      }
+    },
+    {
+      "case_id": "deliveries_csv_anomaly_detection_72",
+      "query": "Identify unusual trends involving extras_type, batter, and batsman_runs.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Identify unusual trends involving extras_type, batter, and batsman_runs.",
+        "intent": "table_analysis",
+        "source_id": "deliveries",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "deliveries",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "grouping_contains": [
+          "extras_type",
+          "batter"
+        ],
+        "metrics_contains": [
+          "batsman_runs"
+        ]
+      }
+    },
+    {
+      "case_id": "deliveries_csv_correlation_exploration_76",
+      "query": "Are batsman_runs and extra_runs related, or is there a visible relationship?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Are batsman_runs and extra_runs related, or is there a visible relationship?",
+        "intent": "table_analysis",
+        "source_id": "deliveries",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "deliveries",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "batsman_runs",
+          "extra_runs"
+        ],
+        "analysis_type": "correlation"
+      }
+    },
+    {
+      "case_id": "deliveries_csv_segmentation_95",
+      "query": "If I only consider records above the median batsman_runs, does extras_type distribution change?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "If I only consider records above the median batsman_runs, does extras_type distribution change?",
+        "intent": "table_analysis",
+        "source_id": "deliveries",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "deliveries",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "batsman_runs"
+        ],
+        "grouping_contains": [
+          "extras_type"
+        ],
+        "filters_contain_operator": [
+          "gt"
+        ]
+      }
+    },
+    {
+      "case_id": "deliveries_csv_executive_summaries_78",
+      "query": "Give me an executive summary of this dataset with key risks and opportunities.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Give me an executive summary of this dataset with key risks and opportunities.",
+        "intent": "table_analysis",
+        "source_id": "deliveries",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "deliveries",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "dataset_summary"
+        ]
+      }
+    },
+    {
+      "case_id": "deliveries_csv_chart_generation_67",
+      "query": "Show the relationship between extras_type and batter using a chart.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Show the relationship between extras_type and batter using a chart.",
+        "intent": "chart_request",
+        "source_id": "deliveries",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool",
+          "chart_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "chart_request",
+        "source_id": "deliveries",
+        "tools": [
+          "table_analysis_tool",
+          "chart_tool"
+        ],
+        "grouping_contains": [
+          "extras_type",
+          "batter"
+        ],
+        "chart_requested": true
+      }
+    },
+    {
+      "case_id": "deliveries_csv_business_insights_62",
+      "query": "What hidden patterns and business insights exist in this data?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "What hidden patterns and business insights exist in this data?",
+        "intent": "table_analysis",
+        "source_id": "deliveries",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "deliveries",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "dataset_summary"
+        ]
+      }
+    },
+    {
+      "case_id": "deliveries_csv_follow_up_questions_60",
+      "query": "Now break that down by extras_type and explain what changed.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Now break that down by extras_type and explain what changed.",
+        "intent": "table_analysis",
+        "source_id": "deliveries",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "deliveries",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "grouping_contains": [
+          "extras_type"
+        ]
+      }
+    },
+    {
+      "case_id": "deliveries_csv_multilingual_questions_55",
+      "query": "extras_type ka overall trend kya hai? Chart bhi dikhao.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "extras_type ka overall trend kya hai? Chart bhi dikhao.",
+        "intent": "chart_request",
+        "source_id": "deliveries",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool",
+          "chart_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "chart_request",
+        "source_id": "deliveries",
+        "tools": [
+          "table_analysis_tool",
+          "chart_tool"
+        ],
+        "grouping_contains": [
+          "extras_type"
+        ],
+        "chart_requested": true
+      }
+    },
+    {
+      "case_id": "online_sales_csv_aggregation_52",
+      "query": "Overall Avg_Price ka scene kaisa hai? Average batao.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Overall Avg_Price ka scene kaisa hai? Average batao.",
+        "intent": "table_analysis",
+        "source_id": "online_sales",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "online_sales",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "rewritten_contains": [
+          "Avg_Price"
+        ],
+        "metrics_contains": [
+          "Avg_Price"
+        ],
+        "aggregations_contains": [
+          "mean"
+        ]
+      }
+    },
+    {
+      "case_id": "online_sales_csv_filtering_66",
+      "query": "If Nest-USA is considered separately, records ka volume kitna hai?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "If Nest-USA is considered separately, records ka volume kitna hai?",
+        "intent": "table_analysis",
+        "source_id": "online_sales",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "online_sales",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "rewritten_contains": [
+          "Nest-USA"
+        ],
+        "entities_contains": [
+          "Nest-USA"
+        ],
+        "aggregations_contains": [
+          "count"
+        ]
+      }
+    },
+    {
+      "case_id": "online_sales_csv_grouping_61",
+      "query": "Does Product_Category preference change across Coupon_Status?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Does Product_Category preference change across Coupon_Status?",
+        "intent": "table_analysis",
+        "source_id": "online_sales",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "online_sales",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "grouping_contains": [
+          "Product_Category",
+          "Coupon_Status"
+        ],
+        "aggregations_contains": [
+          "count"
+        ]
+      }
+    },
+    {
+      "case_id": "online_sales_csv_trend_analysis_57",
+      "query": "Which Transaction_Date has the highest average Avg_Price?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Which Transaction_Date has the highest average Avg_Price?",
+        "intent": "table_analysis",
+        "source_id": "online_sales",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "online_sales",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "Avg_Price"
+        ],
+        "grouping_contains": [
+          "Transaction_Date"
+        ],
+        "aggregations_contains": [
+          "mean"
+        ],
+        "sorting_direction": "desc"
+      }
+    },
+    {
+      "case_id": "online_sales_csv_comparisons_45",
+      "query": "Compare Nest-USA and Office across Avg_Price.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Compare Nest-USA and Office across Avg_Price.",
+        "intent": "table_analysis",
+        "source_id": "online_sales",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "online_sales",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "entities_contains": [
+          "Nest-USA",
+          "Office"
+        ],
+        "grouping_contains": [
+          "Product_Category"
+        ]
+      }
+    },
+    {
+      "case_id": "online_sales_csv_ranking_61",
+      "query": "Kaunse Product_SKU highest average Avg_Price dikha rahe hain?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Kaunse Product_SKU highest average Avg_Price dikha rahe hain?",
+        "intent": "table_analysis",
+        "source_id": "online_sales",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "online_sales",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "Avg_Price"
+        ],
+        "grouping_contains": [
+          "Product_SKU"
+        ],
+        "aggregations_contains": [
+          "mean"
+        ],
+        "sorting_direction": "desc"
+      }
+    },
+    {
+      "case_id": "online_sales_csv_top_k_44",
+      "query": "Show top 5 Product_SKU by average Avg_Price.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Show top 5 Product_SKU by average Avg_Price.",
+        "intent": "table_analysis",
+        "source_id": "online_sales",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "online_sales",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "Avg_Price"
+        ],
+        "grouping_contains": [
+          "Product_SKU"
+        ],
+        "aggregations_contains": [
+          "mean"
+        ],
+        "limit": 5,
+        "sorting_direction": "desc"
+      }
+    },
+    {
+      "case_id": "online_sales_csv_bottom_k_53",
+      "query": "Which 5 Product_SKU are weakest by average Avg_Price?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Which 5 Product_SKU are weakest by average Avg_Price?",
+        "intent": "table_analysis",
+        "source_id": "online_sales",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "online_sales",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "Avg_Price"
+        ],
+        "grouping_contains": [
+          "Product_SKU"
+        ],
+        "aggregations_contains": [
+          "mean"
+        ],
+        "limit": 5,
+        "sorting_direction": "asc"
+      }
+    },
+    {
+      "case_id": "online_sales_csv_anomaly_detection_81",
+      "query": "Identify unusual trends involving Product_Category, Coupon_Status, and Avg_Price.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Identify unusual trends involving Product_Category, Coupon_Status, and Avg_Price.",
+        "intent": "table_analysis",
+        "source_id": "online_sales",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "online_sales",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "grouping_contains": [
+          "Product_Category",
+          "Coupon_Status"
+        ],
+        "metrics_contains": [
+          "Avg_Price"
+        ]
+      }
+    },
+    {
+      "case_id": "online_sales_csv_correlation_exploration_71",
+      "query": "Are Avg_Price and Quantity related, or is there a visible relationship?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Are Avg_Price and Quantity related, or is there a visible relationship?",
+        "intent": "table_analysis",
+        "source_id": "online_sales",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "online_sales",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "Avg_Price",
+          "Quantity"
+        ],
+        "analysis_type": "correlation"
+      }
+    },
+    {
+      "case_id": "online_sales_csv_segmentation_97",
+      "query": "If I only consider records above the median Avg_Price, does Product_Category distribution change?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "If I only consider records above the median Avg_Price, does Product_Category distribution change?",
+        "intent": "table_analysis",
+        "source_id": "online_sales",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "online_sales",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "Avg_Price"
+        ],
+        "grouping_contains": [
+          "Product_Category"
+        ],
+        "filters_contain_operator": [
+          "gt"
+        ]
+      }
+    },
+    {
+      "case_id": "online_sales_csv_executive_summaries_78",
+      "query": "Give me an executive summary of this dataset with key risks and opportunities.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Give me an executive summary of this dataset with key risks and opportunities.",
+        "intent": "table_analysis",
+        "source_id": "online_sales",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "online_sales",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "dataset_summary"
+        ]
+      }
+    },
+    {
+      "case_id": "online_sales_csv_chart_generation_79",
+      "query": "Show the relationship between Product_Category and Coupon_Status using a chart.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Show the relationship between Product_Category and Coupon_Status using a chart.",
+        "intent": "chart_request",
+        "source_id": "online_sales",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool",
+          "chart_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "chart_request",
+        "source_id": "online_sales",
+        "tools": [
+          "table_analysis_tool",
+          "chart_tool"
+        ],
+        "grouping_contains": [
+          "Product_Category",
+          "Coupon_Status"
+        ],
+        "chart_requested": true
+      }
+    },
+    {
+      "case_id": "online_sales_csv_business_insights_62",
+      "query": "What hidden patterns and business insights exist in this data?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "What hidden patterns and business insights exist in this data?",
+        "intent": "table_analysis",
+        "source_id": "online_sales",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "online_sales",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "dataset_summary"
+        ]
+      }
+    },
+    {
+      "case_id": "online_sales_csv_follow_up_questions_65",
+      "query": "Now break that down by Product_Category and explain what changed.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Now break that down by Product_Category and explain what changed.",
+        "intent": "table_analysis",
+        "source_id": "online_sales",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "online_sales",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "grouping_contains": [
+          "Product_Category"
+        ]
+      }
+    },
+    {
+      "case_id": "online_sales_csv_multilingual_questions_60",
+      "query": "Product_Category ka overall trend kya hai? Chart bhi dikhao.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Product_Category ka overall trend kya hai? Chart bhi dikhao.",
+        "intent": "chart_request",
+        "source_id": "online_sales",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool",
+          "chart_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "chart_request",
+        "source_id": "online_sales",
+        "tools": [
+          "table_analysis_tool",
+          "chart_tool"
+        ],
+        "grouping_contains": [
+          "Product_Category"
+        ],
+        "chart_requested": true
+      }
+    },
+    {
+      "case_id": "pre_owned_cars_csv_aggregation_48",
+      "query": "Overall price ka scene kaisa hai? Average batao.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Overall price ka scene kaisa hai? Average batao.",
+        "intent": "table_analysis",
+        "source_id": "pre_owned_cars",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "pre_owned_cars",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "rewritten_contains": [
+          "price"
+        ],
+        "metrics_contains": [
+          "price"
+        ],
+        "aggregations_contains": [
+          "mean"
+        ]
+      }
+    },
+    {
+      "case_id": "pre_owned_cars_csv_filtering_64",
+      "query": "If Diesel is considered separately, records ka volume kitna hai?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "If Diesel is considered separately, records ka volume kitna hai?",
+        "intent": "table_analysis",
+        "source_id": "pre_owned_cars",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "pre_owned_cars",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "rewritten_contains": [
+          "Diesel"
+        ],
+        "entities_contains": [
+          "Diesel"
+        ],
+        "aggregations_contains": [
+          "count"
+        ]
+      }
+    },
+    {
+      "case_id": "pre_owned_cars_csv_grouping_53",
+      "query": "Does fuel_type preference change across transmission?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Does fuel_type preference change across transmission?",
+        "intent": "table_analysis",
+        "source_id": "pre_owned_cars",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "pre_owned_cars",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "grouping_contains": [
+          "fuel_type",
+          "transmission"
+        ],
+        "aggregations_contains": [
+          "count"
+        ]
+      }
+    },
+    {
+      "case_id": "pre_owned_cars_csv_trend_analysis_45",
+      "query": "Which reg_year has the highest average price?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Which reg_year has the highest average price?",
+        "intent": "table_analysis",
+        "source_id": "pre_owned_cars",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "pre_owned_cars",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "price"
+        ],
+        "grouping_contains": [
+          "reg_year"
+        ],
+        "aggregations_contains": [
+          "mean"
+        ],
+        "sorting_direction": "desc"
+      }
+    },
+    {
+      "case_id": "pre_owned_cars_csv_comparisons_39",
+      "query": "Compare Diesel and Petrol across price.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Compare Diesel and Petrol across price.",
+        "intent": "table_analysis",
+        "source_id": "pre_owned_cars",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "pre_owned_cars",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "entities_contains": [
+          "Diesel",
+          "Petrol"
+        ],
+        "grouping_contains": [
+          "fuel_type"
+        ]
+      }
+    },
+    {
+      "case_id": "pre_owned_cars_csv_ranking_51",
+      "query": "Kaunse brand highest average price dikha rahe hain?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Kaunse brand highest average price dikha rahe hain?",
+        "intent": "table_analysis",
+        "source_id": "pre_owned_cars",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "pre_owned_cars",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "price"
+        ],
+        "grouping_contains": [
+          "brand"
+        ],
+        "aggregations_contains": [
+          "mean"
+        ],
+        "sorting_direction": "desc"
+      }
+    },
+    {
+      "case_id": "pre_owned_cars_csv_top_k_34",
+      "query": "Show top 5 brand by average price.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Show top 5 brand by average price.",
+        "intent": "table_analysis",
+        "source_id": "pre_owned_cars",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "pre_owned_cars",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "price"
+        ],
+        "grouping_contains": [
+          "brand"
+        ],
+        "aggregations_contains": [
+          "mean"
+        ],
+        "limit": 5,
+        "sorting_direction": "desc"
+      }
+    },
+    {
+      "case_id": "pre_owned_cars_csv_bottom_k_43",
+      "query": "Which 5 brand are weakest by average price?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Which 5 brand are weakest by average price?",
+        "intent": "table_analysis",
+        "source_id": "pre_owned_cars",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "pre_owned_cars",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "price"
+        ],
+        "grouping_contains": [
+          "brand"
+        ],
+        "aggregations_contains": [
+          "mean"
+        ],
+        "limit": 5,
+        "sorting_direction": "asc"
+      }
+    },
+    {
+      "case_id": "pre_owned_cars_csv_anomaly_detection_69",
+      "query": "Identify unusual trends involving fuel_type, transmission, and price.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Identify unusual trends involving fuel_type, transmission, and price.",
+        "intent": "table_analysis",
+        "source_id": "pre_owned_cars",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "pre_owned_cars",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "grouping_contains": [
+          "fuel_type",
+          "transmission"
+        ],
+        "metrics_contains": [
+          "price"
+        ]
+      }
+    },
+    {
+      "case_id": "pre_owned_cars_csv_correlation_exploration_71",
+      "query": "Are price and overall_cost related, or is there a visible relationship?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Are price and overall_cost related, or is there a visible relationship?",
+        "intent": "table_analysis",
+        "source_id": "pre_owned_cars",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "pre_owned_cars",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "price",
+          "overall_cost"
+        ],
+        "analysis_type": "correlation"
+      }
+    },
+    {
+      "case_id": "pre_owned_cars_csv_segmentation_86",
+      "query": "If I only consider records above the median price, does fuel_type distribution change?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "If I only consider records above the median price, does fuel_type distribution change?",
+        "intent": "table_analysis",
+        "source_id": "pre_owned_cars",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "pre_owned_cars",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "price"
+        ],
+        "grouping_contains": [
+          "fuel_type"
+        ],
+        "filters_contain_operator": [
+          "gt"
+        ]
+      }
+    },
+    {
+      "case_id": "pre_owned_cars_csv_executive_summaries_78",
+      "query": "Give me an executive summary of this dataset with key risks and opportunities.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Give me an executive summary of this dataset with key risks and opportunities.",
+        "intent": "table_analysis",
+        "source_id": "pre_owned_cars",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "pre_owned_cars",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "dataset_summary"
+        ]
+      }
+    },
+    {
+      "case_id": "pre_owned_cars_csv_chart_generation_71",
+      "query": "Show the relationship between fuel_type and transmission using a chart.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Show the relationship between fuel_type and transmission using a chart.",
+        "intent": "chart_request",
+        "source_id": "pre_owned_cars",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool",
+          "chart_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "chart_request",
+        "source_id": "pre_owned_cars",
+        "tools": [
+          "table_analysis_tool",
+          "chart_tool"
+        ],
+        "grouping_contains": [
+          "fuel_type",
+          "transmission"
+        ],
+        "chart_requested": true
+      }
+    },
+    {
+      "case_id": "pre_owned_cars_csv_business_insights_62",
+      "query": "What hidden patterns and business insights exist in this data?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "What hidden patterns and business insights exist in this data?",
+        "intent": "table_analysis",
+        "source_id": "pre_owned_cars",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "pre_owned_cars",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "dataset_summary"
+        ]
+      }
+    },
+    {
+      "case_id": "pre_owned_cars_csv_follow_up_questions_58",
+      "query": "Now break that down by fuel_type and explain what changed.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Now break that down by fuel_type and explain what changed.",
+        "intent": "table_analysis",
+        "source_id": "pre_owned_cars",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "pre_owned_cars",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "grouping_contains": [
+          "fuel_type"
+        ]
+      }
+    },
+    {
+      "case_id": "pre_owned_cars_csv_multilingual_questions_53",
+      "query": "fuel_type ka overall trend kya hai? Chart bhi dikhao.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "fuel_type ka overall trend kya hai? Chart bhi dikhao.",
+        "intent": "chart_request",
+        "source_id": "pre_owned_cars",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool",
+          "chart_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "chart_request",
+        "source_id": "pre_owned_cars",
+        "tools": [
+          "table_analysis_tool",
+          "chart_tool"
+        ],
+        "grouping_contains": [
+          "fuel_type"
+        ],
+        "chart_requested": true
+      }
+    },
+    {
+      "case_id": "marketing_spend_csv_aggregation_56",
+      "query": "Overall Offline_Spend ka scene kaisa hai? Average batao.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Overall Offline_Spend ka scene kaisa hai? Average batao.",
+        "intent": "table_analysis",
+        "source_id": "marketing_spend",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "marketing_spend",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "rewritten_contains": [
+          "Offline_Spend"
+        ],
+        "metrics_contains": [
+          "Offline_Spend"
+        ],
+        "aggregations_contains": [
+          "mean"
+        ]
+      }
+    },
+    {
+      "case_id": "marketing_spend_csv_trend_analysis_49",
+      "query": "Which Date performed best by total Offline_Spend?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Which Date performed best by total Offline_Spend?",
+        "intent": "table_analysis",
+        "source_id": "marketing_spend",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "marketing_spend",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "Offline_Spend"
+        ],
+        "grouping_contains": [
+          "Date"
+        ],
+        "aggregations_contains": [
+          "sum"
+        ],
+        "sorting_direction": "desc"
+      }
+    },
+    {
+      "case_id": "marketing_spend_csv_correlation_exploration_79",
+      "query": "Are Offline_Spend and Online_Spend related, or is there a visible relationship?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Are Offline_Spend and Online_Spend related, or is there a visible relationship?",
+        "intent": "table_analysis",
+        "source_id": "marketing_spend",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "marketing_spend",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "Offline_Spend",
+          "Online_Spend"
+        ],
+        "analysis_type": "correlation"
+      }
+    },
+    {
+      "case_id": "marketing_spend_csv_executive_summaries_78",
+      "query": "Give me an executive summary of this dataset with key risks and opportunities.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Give me an executive summary of this dataset with key risks and opportunities.",
+        "intent": "table_analysis",
+        "source_id": "marketing_spend",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "marketing_spend",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "dataset_summary"
+        ]
+      }
+    },
+    {
+      "case_id": "marketing_spend_csv_business_insights_62",
+      "query": "What hidden patterns and business insights exist in this data?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "What hidden patterns and business insights exist in this data?",
+        "intent": "table_analysis",
+        "source_id": "marketing_spend",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "marketing_spend",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "dataset_summary"
+        ]
+      }
+    },
+    {
+      "case_id": "discount_coupon_csv_aggregation_55",
+      "query": "Overall Discount_pct ka scene kaisa hai? Average batao.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Overall Discount_pct ka scene kaisa hai? Average batao.",
+        "intent": "table_analysis",
+        "source_id": "discount_coupon",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "discount_coupon",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "rewritten_contains": [
+          "Discount_pct"
+        ],
+        "metrics_contains": [
+          "Discount_pct"
+        ],
+        "aggregations_contains": [
+          "mean"
+        ]
+      }
+    },
+    {
+      "case_id": "discount_coupon_csv_filtering_65",
+      "query": "If Apparel is considered separately, records ka volume kitna hai?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "If Apparel is considered separately, records ka volume kitna hai?",
+        "intent": "table_analysis",
+        "source_id": "discount_coupon",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "discount_coupon",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "rewritten_contains": [
+          "Apparel"
+        ],
+        "entities_contains": [
+          "Apparel"
+        ],
+        "aggregations_contains": [
+          "count"
+        ]
+      }
+    },
+    {
+      "case_id": "discount_coupon_csv_grouping_59",
+      "query": "Does Product_Category preference change across Coupon_Code?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Does Product_Category preference change across Coupon_Code?",
+        "intent": "table_analysis",
+        "source_id": "discount_coupon",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "discount_coupon",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "grouping_contains": [
+          "Product_Category",
+          "Coupon_Code"
+        ],
+        "aggregations_contains": [
+          "count"
+        ]
+      }
+    },
+    {
+      "case_id": "discount_coupon_csv_trend_analysis_49",
+      "query": "Which Month has the highest average Discount_pct?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Which Month has the highest average Discount_pct?",
+        "intent": "table_analysis",
+        "source_id": "discount_coupon",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "discount_coupon",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "Discount_pct"
+        ],
+        "grouping_contains": [
+          "Month"
+        ],
+        "aggregations_contains": [
+          "mean"
+        ],
+        "sorting_direction": "desc"
+      }
+    },
+    {
+      "case_id": "discount_coupon_csv_comparisons_49",
+      "query": "Compare Apparel and Nest-USA across Discount_pct.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Compare Apparel and Nest-USA across Discount_pct.",
+        "intent": "table_analysis",
+        "source_id": "discount_coupon",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "discount_coupon",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "entities_contains": [
+          "Apparel",
+          "Nest-USA"
+        ],
+        "grouping_contains": [
+          "Product_Category"
+        ]
+      }
+    },
+    {
+      "case_id": "discount_coupon_csv_ranking_69",
+      "query": "Kaunse Product_Category highest average Discount_pct dikha rahe hain?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Kaunse Product_Category highest average Discount_pct dikha rahe hain?",
+        "intent": "table_analysis",
+        "source_id": "discount_coupon",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "discount_coupon",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "Discount_pct"
+        ],
+        "grouping_contains": [
+          "Product_Category"
+        ],
+        "aggregations_contains": [
+          "mean"
+        ],
+        "sorting_direction": "desc"
+      }
+    },
+    {
+      "case_id": "discount_coupon_csv_top_k_52",
+      "query": "Show top 5 Product_Category by average Discount_pct.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Show top 5 Product_Category by average Discount_pct.",
+        "intent": "table_analysis",
+        "source_id": "discount_coupon",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "discount_coupon",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "Discount_pct"
+        ],
+        "grouping_contains": [
+          "Product_Category"
+        ],
+        "aggregations_contains": [
+          "mean"
+        ],
+        "limit": 5,
+        "sorting_direction": "desc"
+      }
+    },
+    {
+      "case_id": "discount_coupon_csv_bottom_k_61",
+      "query": "Which 5 Product_Category are weakest by average Discount_pct?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Which 5 Product_Category are weakest by average Discount_pct?",
+        "intent": "table_analysis",
+        "source_id": "discount_coupon",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "discount_coupon",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "Discount_pct"
+        ],
+        "grouping_contains": [
+          "Product_Category"
+        ],
+        "aggregations_contains": [
+          "mean"
+        ],
+        "limit": 5,
+        "sorting_direction": "asc"
+      }
+    },
+    {
+      "case_id": "discount_coupon_csv_anomaly_detection_82",
+      "query": "Identify unusual trends involving Product_Category, Coupon_Code, and Discount_pct.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Identify unusual trends involving Product_Category, Coupon_Code, and Discount_pct.",
+        "intent": "table_analysis",
+        "source_id": "discount_coupon",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "discount_coupon",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "grouping_contains": [
+          "Product_Category",
+          "Coupon_Code"
+        ],
+        "metrics_contains": [
+          "Discount_pct"
+        ]
+      }
+    },
+    {
+      "case_id": "discount_coupon_csv_segmentation_100",
+      "query": "If I only consider records above the median Discount_pct, does Product_Category distribution change?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "If I only consider records above the median Discount_pct, does Product_Category distribution change?",
+        "intent": "table_analysis",
+        "source_id": "discount_coupon",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "discount_coupon",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "Discount_pct"
+        ],
+        "grouping_contains": [
+          "Product_Category"
+        ],
+        "filters_contain_operator": [
+          "gt"
+        ]
+      }
+    },
+    {
+      "case_id": "discount_coupon_csv_executive_summaries_78",
+      "query": "Give me an executive summary of this dataset with key risks and opportunities.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Give me an executive summary of this dataset with key risks and opportunities.",
+        "intent": "table_analysis",
+        "source_id": "discount_coupon",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "discount_coupon",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "dataset_summary"
+        ]
+      }
+    },
+    {
+      "case_id": "discount_coupon_csv_chart_generation_77",
+      "query": "Show the relationship between Product_Category and Coupon_Code using a chart.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Show the relationship between Product_Category and Coupon_Code using a chart.",
+        "intent": "chart_request",
+        "source_id": "discount_coupon",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool",
+          "chart_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "chart_request",
+        "source_id": "discount_coupon",
+        "tools": [
+          "table_analysis_tool",
+          "chart_tool"
+        ],
+        "grouping_contains": [
+          "Product_Category",
+          "Coupon_Code"
+        ],
+        "chart_requested": true
+      }
+    },
+    {
+      "case_id": "discount_coupon_csv_business_insights_62",
+      "query": "What hidden patterns and business insights exist in this data?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "What hidden patterns and business insights exist in this data?",
+        "intent": "table_analysis",
+        "source_id": "discount_coupon",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "discount_coupon",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "dataset_summary"
+        ]
+      }
+    },
+    {
+      "case_id": "discount_coupon_csv_follow_up_questions_65",
+      "query": "Now break that down by Product_Category and explain what changed.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Now break that down by Product_Category and explain what changed.",
+        "intent": "table_analysis",
+        "source_id": "discount_coupon",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "discount_coupon",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "grouping_contains": [
+          "Product_Category"
+        ]
+      }
+    },
+    {
+      "case_id": "discount_coupon_csv_multilingual_questions_60",
+      "query": "Product_Category ka overall trend kya hai? Chart bhi dikhao.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Product_Category ka overall trend kya hai? Chart bhi dikhao.",
+        "intent": "chart_request",
+        "source_id": "discount_coupon",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool",
+          "chart_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "chart_request",
+        "source_id": "discount_coupon",
+        "tools": [
+          "table_analysis_tool",
+          "chart_tool"
+        ],
+        "grouping_contains": [
+          "Product_Category"
+        ],
+        "chart_requested": true
+      }
+    },
+    {
+      "case_id": "finance_data_csv_aggregation_46",
+      "query": "Overall age ka scene kaisa hai? Average batao.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Overall age ka scene kaisa hai? Average batao.",
+        "intent": "table_analysis",
+        "source_id": "finance_data",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "finance_data",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "rewritten_contains": [
+          "age"
+        ],
+        "metrics_contains": [
+          "age"
+        ],
+        "aggregations_contains": [
+          "mean"
+        ]
+      }
+    },
+    {
+      "case_id": "finance_data_csv_filtering_64",
+      "query": "If Female is considered separately, records ka volume kitna hai?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "If Female is considered separately, records ka volume kitna hai?",
+        "intent": "table_analysis",
+        "source_id": "finance_data",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "finance_data",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "rewritten_contains": [
+          "Female"
+        ],
+        "entities_contains": [
+          "Female"
+        ],
+        "aggregations_contains": [
+          "count"
+        ]
+      }
+    },
+    {
+      "case_id": "finance_data_csv_grouping_46",
+      "query": "Does gender preference change across Duration?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Does gender preference change across Duration?",
+        "intent": "table_analysis",
+        "source_id": "finance_data",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "finance_data",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "grouping_contains": [
+          "gender",
+          "Duration"
+        ],
+        "aggregations_contains": [
+          "count"
+        ]
+      }
+    },
+    {
+      "case_id": "finance_data_csv_trend_analysis_41",
+      "query": "Which gender has the highest average age?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Which gender has the highest average age?",
+        "intent": "table_analysis",
+        "source_id": "finance_data",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "finance_data",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "age"
+        ],
+        "grouping_contains": [
+          "gender"
+        ],
+        "aggregations_contains": [
+          "mean"
+        ],
+        "sorting_direction": "desc"
+      }
+    },
+    {
+      "case_id": "finance_data_csv_comparisons_35",
+      "query": "Compare Female and Male across age.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Compare Female and Male across age.",
+        "intent": "table_analysis",
+        "source_id": "finance_data",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "finance_data",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "entities_contains": [
+          "Female",
+          "Male"
+        ],
+        "grouping_contains": [
+          "gender"
+        ]
+      }
+    },
+    {
+      "case_id": "finance_data_csv_ranking_53",
+      "query": "Kaunse Objective highest average age dikha rahe hain?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Kaunse Objective highest average age dikha rahe hain?",
+        "intent": "table_analysis",
+        "source_id": "finance_data",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "finance_data",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "age"
+        ],
+        "grouping_contains": [
+          "Objective"
+        ],
+        "aggregations_contains": [
+          "mean"
+        ],
+        "sorting_direction": "desc"
+      }
+    },
+    {
+      "case_id": "finance_data_csv_top_k_36",
+      "query": "Show top 5 Objective by average age.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Show top 5 Objective by average age.",
+        "intent": "table_analysis",
+        "source_id": "finance_data",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "finance_data",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "age"
+        ],
+        "grouping_contains": [
+          "Objective"
+        ],
+        "aggregations_contains": [
+          "mean"
+        ],
+        "limit": 5,
+        "sorting_direction": "desc"
+      }
+    },
+    {
+      "case_id": "finance_data_csv_bottom_k_45",
+      "query": "Which 5 Objective are weakest by average age?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Which 5 Objective are weakest by average age?",
+        "intent": "table_analysis",
+        "source_id": "finance_data",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "finance_data",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "age"
+        ],
+        "grouping_contains": [
+          "Objective"
+        ],
+        "aggregations_contains": [
+          "mean"
+        ],
+        "limit": 5,
+        "sorting_direction": "asc"
+      }
+    },
+    {
+      "case_id": "finance_data_csv_anomaly_detection_60",
+      "query": "Identify unusual trends involving gender, Duration, and age.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Identify unusual trends involving gender, Duration, and age.",
+        "intent": "table_analysis",
+        "source_id": "finance_data",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "finance_data",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "grouping_contains": [
+          "gender",
+          "Duration"
+        ],
+        "metrics_contains": [
+          "age"
+        ]
+      }
+    },
+    {
+      "case_id": "finance_data_csv_correlation_exploration_69",
+      "query": "Are age and Mutual_Funds related, or is there a visible relationship?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Are age and Mutual_Funds related, or is there a visible relationship?",
+        "intent": "table_analysis",
+        "source_id": "finance_data",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "finance_data",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "age",
+          "Mutual_Funds"
+        ],
+        "analysis_type": "correlation"
+      }
+    },
+    {
+      "case_id": "finance_data_csv_segmentation_81",
+      "query": "If I only consider records above the median age, does gender distribution change?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "If I only consider records above the median age, does gender distribution change?",
+        "intent": "table_analysis",
+        "source_id": "finance_data",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "finance_data",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "age"
+        ],
+        "grouping_contains": [
+          "gender"
+        ],
+        "filters_contain_operator": [
+          "gt"
+        ]
+      }
+    },
+    {
+      "case_id": "finance_data_csv_executive_summaries_78",
+      "query": "Give me an executive summary of this dataset with key risks and opportunities.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Give me an executive summary of this dataset with key risks and opportunities.",
+        "intent": "table_analysis",
+        "source_id": "finance_data",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "finance_data",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "dataset_summary"
+        ]
+      }
+    },
+    {
+      "case_id": "finance_data_csv_chart_generation_64",
+      "query": "Show the relationship between gender and Duration using a chart.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Show the relationship between gender and Duration using a chart.",
+        "intent": "chart_request",
+        "source_id": "finance_data",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool",
+          "chart_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "chart_request",
+        "source_id": "finance_data",
+        "tools": [
+          "table_analysis_tool",
+          "chart_tool"
+        ],
+        "grouping_contains": [
+          "gender",
+          "Duration"
+        ],
+        "chart_requested": true
+      }
+    },
+    {
+      "case_id": "finance_data_csv_business_insights_62",
+      "query": "What hidden patterns and business insights exist in this data?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "What hidden patterns and business insights exist in this data?",
+        "intent": "table_analysis",
+        "source_id": "finance_data",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "finance_data",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "dataset_summary"
+        ]
+      }
+    },
+    {
+      "case_id": "finance_data_csv_follow_up_questions_55",
+      "query": "Now break that down by gender and explain what changed.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Now break that down by gender and explain what changed.",
+        "intent": "table_analysis",
+        "source_id": "finance_data",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "table_analysis",
+        "source_id": "finance_data",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "grouping_contains": [
+          "gender"
+        ]
+      }
+    },
+    {
+      "case_id": "finance_data_csv_multilingual_questions_50",
+      "query": "gender ka overall trend kya hai? Chart bhi dikhao.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "gender ka overall trend kya hai? Chart bhi dikhao.",
+        "intent": "chart_request",
+        "source_id": "finance_data",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool",
+          "chart_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "intent": "chart_request",
+        "source_id": "finance_data",
+        "tools": [
+          "table_analysis_tool",
+          "chart_tool"
+        ],
+        "grouping_contains": [
+          "gender"
+        ],
+        "chart_requested": true
+      }
+    },
+    {
+      "case_id": "assignment_pdf_expense_numeric_comparison",
+      "query": "Compare the total expenses between the 2023 and 2022 financial reports in the PDF documents.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "document_comparison_accuracy": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Compare the total expenses between the 2023 and 2022 financial reports in the PDF documents.",
+        "intent": "compare_documents",
+        "source_id": "report_2023",
+        "source_type": "mixed",
+        "tools": [
+          "rag_qa_tool",
+          "compare_tool"
+        ],
+        "warnings": [],
+        "rag": {
+          "success": true,
+          "answer": "The audited financial statements report that total expenses were USD 120 million in 2023.",
+          "citation_count": 2
+        },
+        "comparison": {
+          "success": true,
+          "answer": "Expenses: 2023 reports USD 120 million; 2022 reports USD 100 million. Difference (2023 - 2022) is USD 20 million, a 20.00% increase.",
+          "data": {
+            "comparison_type": "numeric_financial",
+            "metric": "expenses",
+            "left_source_id": "report_2023",
+            "right_source_id": "report_2022",
+            "left_value": 120000000.0,
+            "right_value": 100000000.0,
+            "absolute_difference": 20000000.0,
+            "percentage_change": 20.0,
+            "direction": "increase",
+            "unit_compatible": true,
+            "source_count": 2,
+            "input_count": 1,
+            "successful_input_count": 1
+          },
+          "citation_count": 2
+        }
+      },
+      "expected": {
+        "intent": "compare_documents",
+        "tools": [
+          "rag_qa_tool",
+          "compare_tool"
+        ],
+        "requires_citations": true
+      }
+    },
+    {
+      "case_id": "spanish_excel_revenue_trend",
+      "query": "Muestra las tendencias de ingresos para Q1 y Q2 del archivo Excel.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Show revenue trends for Q1 and Q2 from the attached Excel or CSV file.",
+        "intent": "chart_request",
+        "source_id": "ventas",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool",
+          "chart_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "rewritten_contains": [
+          "revenue",
+          "Q1",
+          "Q2"
+        ],
+        "intent": "chart_request",
+        "source_id": "ventas",
+        "tools": [
+          "table_analysis_tool",
+          "chart_tool"
+        ],
+        "metrics_contains": [
+          "revenue"
+        ],
+        "aggregations_contains": [
+          "sum"
+        ],
+        "grouping_contains": [
+          "Quarter"
+        ],
+        "chart_type": "line"
+      }
+    },
+    {
+      "case_id": "spanish_csv_average_monthly_profit",
+      "query": "\u00bfCu\u00e1l es el beneficio mensual promedio seg\u00fan el archivo CSV?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Calculate the average monthly profit from the uploaded table data.",
+        "intent": "table_analysis",
+        "source_id": "beneficio",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "rewritten_contains": [
+          "average",
+          "profit"
+        ],
+        "intent": "table_analysis",
+        "source_id": "beneficio",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "profit"
+        ],
+        "aggregations_contains": [
+          "mean"
+        ],
+        "grouping_contains": [
+          "month"
+        ]
+      }
+    },
+    {
+      "case_id": "spanish_pdf_grounded_revenue",
+      "query": "\u00bfCu\u00e1les son las tendencias de ingresos del \u00faltimo trimestre seg\u00fan el informe adjunto?",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "Analyze revenue trends for the last quarter according to the attached report.",
+        "intent": "rag_question",
+        "source_id": "informe",
+        "source_type": "document",
+        "tools": [
+          "rag_qa_tool"
+        ],
+        "warnings": [],
+        "rag": {
+          "success": true,
+          "answer": "Los ingresos del \u00faltimo trimestre aumentaron un 12% por el crecimiento de las ventas.",
+          "citation_count": 1
+        }
+      },
+      "expected": {
+        "rewritten_contains": [
+          "revenue",
+          "trends"
+        ],
+        "intent": "rag_question",
+        "source_id": "informe",
+        "tools": [
+          "rag_qa_tool"
+        ],
+        "requires_citations": true
+      }
+    },
+    {
+      "case_id": "hinglish_csv_average_profit",
+      "query": "CSV se monthly profit ka average batao.",
+      "passed": true,
+      "scores": {
+        "query_rewrite_quality": 1.0,
+        "intent_accuracy": 1.0,
+        "semantic_plan_accuracy": 1.0,
+        "source_selection_accuracy": 1.0,
+        "tool_selection_accuracy": 1.0,
+        "csv_answer_accuracy": 1.0,
+        "rag_citation_presence": 1.0,
+        "hallucination_safety": 1.0,
+        "error_handling": 1.0
+      },
+      "failures": [],
+      "actual": {
+        "rewritten_query": "CSV se monthly profit ka average batao.",
+        "intent": "table_analysis",
+        "source_id": "profit",
+        "source_type": "table",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "warnings": []
+      },
+      "expected": {
+        "rewritten_contains": [
+          "profit"
+        ],
+        "intent": "table_analysis",
+        "source_id": "profit",
+        "tools": [
+          "table_analysis_tool"
+        ],
+        "metrics_contains": [
+          "profit"
+        ],
+        "aggregations_contains": [
+          "mean"
+        ],
+        "grouping_contains": [
+          "month"
+        ]
       }
     }
   ]

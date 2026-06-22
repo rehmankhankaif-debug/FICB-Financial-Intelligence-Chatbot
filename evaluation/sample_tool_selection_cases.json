@@ -67,7 +67,7 @@
       "expected": {
         "rewritten_contains": ["compare", "revenue"],
         "intent": "compare_documents",
-        "source_type": "table|document",
+        "source_type": "mixed",
         "tools": ["table_analysis_tool", "rag_qa_tool", "compare_tool"]
       }
     },

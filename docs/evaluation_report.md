@@ -1,18 +1,18 @@
 # Evaluation Report
 
-> Verification addendum (2026-06-19): controlled benchmark results below are not a production accuracy guarantee. Exact assignment examples now have acceptance coverage in `tests/test_assignment_acceptance.py`. Real-document, OCR, browser, load, security, and deployment evaluation remain required for production claims.
+> This is a reproducible controlled benchmark, not a universal production-accuracy guarantee. Real annual reports, browser/device coverage, load, security, OCR, and deployment evaluation remain separate gates.
 
 ## Assignment Requirement Coverage
 
-The project satisfies and exceeds the assignment requirements:
+The project covers the assignment's core functional requirements:
 
 - CSV support: implemented through table loading, profiling, semantic mapping, and pandas execution.
 - Excel support: implemented through pandas and `openpyxl`.
-- PDF support: implemented through `pypdf`, chunking, embeddings, ChromaDB, retrieval, and citations.
+- PDF support: implemented through PyMuPDF/`pypdf`, OCR fallback, chunking, embeddings, ChromaDB, retrieval, and citations.
 - DOCX support: implemented through `python-docx`, including paragraph and table extraction.
 - URL support: implemented through `requests`, BeautifulSoup cleaning, chunking, indexing, and retrieval.
 - Natural language and Hinglish support: query rewrite, planning, safe language detection, and deterministic fallbacks.
-- Financial and statistical analysis: sum, mean, median, min, max, count, nunique, ranking, filtering, and comparisons.
+- Financial and statistical analysis: sum, mean, median, min, max, count, nunique, ranking, filtering, and cited cross-document numeric comparisons.
 - Charts: Plotly chart generation from pandas-grounded table results.
 - Summaries and RAG QA: document chunk retrieval with citation-bearing answers.
 - Autonomous tool invocation: `QueryPlan -> ToolPlanner -> ExecutionPlan -> ToolChainExecutor`.
@@ -22,13 +22,14 @@ The project satisfies and exceeds the assignment requirements:
 
 Latest evaluation:
 
-- Total cases: 289
-- Passed cases: 289
+- Total cases: 394
+- Passed cases: 394
 - Accuracy: 100.00%
 
 ## Metric Accuracy
 
 - csv_answer_accuracy: 100.00%
+- document_comparison_accuracy: 100.00%
 - error_handling: 100.00%
 - hallucination_safety: 100.00%
 - intent_accuracy: 100.00%
@@ -48,7 +49,7 @@ No failed cases.
 
 ## Evaluation Scope
 
-The benchmark covers table analysis, chart planning, Hinglish planning, source selection, tool selection, CSV answer accuracy, document citation requirements, hallucination safety, and safe error handling.
+The committed benchmark covers table analysis, chart planning, English/Hinglish/Spanish planning, source selection, tool selection, CSV answer accuracy, executed RAG citations, grounded-number safety, cited PDF arithmetic, and safe error handling.
 
 ## Challenges
 
@@ -60,10 +61,9 @@ The benchmark covers table analysis, chart planning, Hinglish planning, source s
 
 ## Future Improvements
 
-- Add larger multilingual benchmark sets.
+- Add larger independently reviewed multilingual benchmark sets.
 - Add more real-world annual reports and financial statements to the benchmark.
 - Add richer YoY, margin, variance, and trend analytics.
-- Add authentication and multi-user storage.
 - Add dashboard-level trace visualization.
-- Add downloadable chart and table exports.
 - Add stricter enterprise privacy controls.
+- Add browser, accessibility, load, security, and deployment verification.

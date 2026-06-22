@@ -1,0 +1,54 @@
+{
+  "cases": [
+    {
+      "id": "assignment_pdf_expense_numeric_comparison",
+      "query": "Compare the total expenses between the 2023 and 2022 financial reports in the PDF documents.",
+      "language": "en",
+      "available_sources": [
+        {"source_id": "report_2023", "filename": "financial_report_2023.pdf", "file_type": "pdf"},
+        {"source_id": "report_2022", "filename": "financial_report_2022.pdf", "file_type": "pdf"}
+      ],
+      "document_metadata": [
+        {"source_id": "report_2023", "filename": "financial_report_2023.pdf", "chunk_count": 1},
+        {"source_id": "report_2022", "filename": "financial_report_2022.pdf", "chunk_count": 1}
+      ],
+      "expected": {
+        "intent": "compare_documents",
+        "tools": ["rag_qa_tool", "compare_tool"],
+        "requires_citations": true
+      },
+      "rag_case": {
+        "requires_citations": true,
+        "minimum_score": 0.0,
+        "retrieved_chunks": [
+          {
+            "source_id": "report_2023",
+            "filename": "financial_report_2023.pdf",
+            "source_type": "pdf",
+            "chunk_id": "report_2023_page_12",
+            "page": 12,
+            "score": 0.96,
+            "content": "The audited financial statements report that total expenses were USD 120 million in 2023."
+          },
+          {
+            "source_id": "report_2022",
+            "filename": "financial_report_2022.pdf",
+            "source_type": "pdf",
+            "chunk_id": "report_2022_page_10",
+            "page": 10,
+            "score": 0.95,
+            "content": "The audited financial statements report that total expenses were USD 100 million in 2022."
+          }
+        ]
+      },
+      "comparison_case": {
+        "expected": {
+          "absolute_difference": 20000000.0,
+          "percentage_change": 20.0,
+          "direction": "increase",
+          "minimum_citations": 2
+        }
+      }
+    }
+  ]
+}

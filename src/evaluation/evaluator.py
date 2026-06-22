@@ -25,7 +25,9 @@ from src.llm.gemini_client import GeminiClient
 from src.models.table import TableProfile
 from src.models.tool import ToolResult
 from src.table_intelligence.pandas_executor import PandasExecutor
+from src.tools.compare_tool import CompareTool
 from src.tools.manager import ToolManager
+from src.tools.rag_qa_tool import RagQATool
 
 
 METRIC_KEYS = [
@@ -37,6 +39,7 @@ METRIC_KEYS = [
     "csv_answer_accuracy",
     "rag_citation_presence",
     "hallucination_safety",
+    "document_comparison_accuracy",
     "error_handling",
 ]
 
@@ -88,17 +91,19 @@ class EvaluationReport:
         lines = [
             "# Evaluation Report",
             "",
+            "> This is a reproducible controlled benchmark, not a universal production-accuracy guarantee. Real annual reports, browser/device coverage, load, security, OCR, and deployment evaluation remain separate gates.",
+            "",
             "## Assignment Requirement Coverage",
             "",
-            "The project satisfies and exceeds the assignment requirements:",
+            "The project covers the assignment's core functional requirements:",
             "",
             "- CSV support: implemented through table loading, profiling, semantic mapping, and pandas execution.",
             "- Excel support: implemented through pandas and `openpyxl`.",
-            "- PDF support: implemented through `pypdf`, chunking, embeddings, ChromaDB, retrieval, and citations.",
+            "- PDF support: implemented through PyMuPDF/`pypdf`, OCR fallback, chunking, embeddings, ChromaDB, retrieval, and citations.",
             "- DOCX support: implemented through `python-docx`, including paragraph and table extraction.",
             "- URL support: implemented through `requests`, BeautifulSoup cleaning, chunking, indexing, and retrieval.",
             "- Natural language and Hinglish support: query rewrite, planning, safe language detection, and deterministic fallbacks.",
-            "- Financial and statistical analysis: sum, mean, median, min, max, count, nunique, ranking, filtering, and comparisons.",
+            "- Financial and statistical analysis: sum, mean, median, min, max, count, nunique, ranking, filtering, and cited cross-document numeric comparisons.",
             "- Charts: Plotly chart generation from pandas-grounded table results.",
             "- Summaries and RAG QA: document chunk retrieval with citation-bearing answers.",
             "- Autonomous tool invocation: `QueryPlan -> ToolPlanner -> ExecutionPlan -> ToolChainExecutor`.",
@@ -132,7 +137,7 @@ class EvaluationReport:
                 "",
                 "## Evaluation Scope",
                 "",
-                "The benchmark covers table analysis, chart planning, Hinglish planning, source selection, tool selection, CSV answer accuracy, document citation requirements, hallucination safety, and safe error handling.",
+                "The committed benchmark covers table analysis, chart planning, English/Hinglish/Spanish planning, source selection, tool selection, CSV answer accuracy, executed RAG citations, grounded-number safety, cited PDF arithmetic, and safe error handling.",
                 "",
                 "## Challenges",
                 "",
@@ -144,13 +149,12 @@ class EvaluationReport:
                 "",
                 "## Future Improvements",
                 "",
-                "- Add larger multilingual benchmark sets.",
+                "- Add larger independently reviewed multilingual benchmark sets.",
                 "- Add more real-world annual reports and financial statements to the benchmark.",
                 "- Add richer YoY, margin, variance, and trend analytics.",
-                "- Add authentication and multi-user storage.",
                 "- Add dashboard-level trace visualization.",
-                "- Add downloadable chart and table exports.",
                 "- Add stricter enterprise privacy controls.",
+                "- Add browser, accessibility, load, security, and deployment verification.",
             ]
         )
         return "\n".join(lines).strip() + "\n"
@@ -248,8 +252,12 @@ class Evaluator:
             else:
                 scores["csv_answer_accuracy"] = 1.0
 
-            scores["rag_citation_presence"] = self._rag_citation_score(case)
-            scores["hallucination_safety"] = self._hallucination_score(case)
+            rag_result = self._execute_rag_case(case, plan)
+            scores["rag_citation_presence"] = self._rag_citation_score(case, rag_result)
+            scores["hallucination_safety"] = self._hallucination_score(case, rag_result)
+            comparison_result = self._execute_comparison_case(case, plan, rag_result)
+            if case.get("comparison_case"):
+                scores["document_comparison_accuracy"] = self._document_comparison_score(case, comparison_result)
             scores["error_handling"] = self._error_handling_score(case, execution_plan)
 
             actual = {
@@ -260,6 +268,19 @@ class Evaluator:
                 "tools": actual_tools,
                 "warnings": list(execution_plan.warnings or []),
             }
+            if rag_result is not None:
+                actual["rag"] = {
+                    "success": rag_result.success,
+                    "answer": rag_result.answer,
+                    "citation_count": len(rag_result.citations or []),
+                }
+            if comparison_result is not None:
+                actual["comparison"] = {
+                    "success": comparison_result.success,
+                    "answer": comparison_result.answer,
+                    "data": comparison_result.data,
+                    "citation_count": len(comparison_result.citations or []),
+                }
         except Exception as exc:
             scores["error_handling"] = 0.0
             failures.append("Evaluator raised uncaught exception: {0}".format(str(exc)))
@@ -291,17 +312,69 @@ class Evaluator:
         table_score = table_value_score(expected.get("table"), result.table)
         return round((data_score + table_score) / 2.0, 4)
 
-    def _rag_citation_score(self, case: Dict[str, Any]) -> float:
+    def _execute_rag_case(self, case: Dict[str, Any], plan: Any) -> Optional[ToolResult]:
+        rag_case = case.get("rag_case") or {}
+        chunks = list(rag_case.get("retrieved_chunks") or [])
+        if not chunks:
+            return None
+        payload = {
+            "query_plan": plan.model_dump() if hasattr(plan, "model_dump") else plan.dict(),
+            "retrieved_chunks": chunks,
+            "minimum_score": float(rag_case.get("minimum_score", 0.0)),
+        }
+        return RagQATool().safe_run(payload)
+
+    def _rag_citation_score(self, case: Dict[str, Any], rag_result: Optional[ToolResult]) -> float:
         rag_case = case.get("rag_case") or {}
         requires = bool(rag_case.get("requires_citations") or (case.get("expected") or {}).get("requires_citations"))
-        citation_count = int(rag_case.get("citation_count") or 0)
+        citation_count = len(rag_result.citations or []) if rag_result is not None else 0
         return citation_presence_score(requires, citation_count)
 
-    def _hallucination_score(self, case: Dict[str, Any]) -> float:
+    def _hallucination_score(self, case: Dict[str, Any], rag_result: Optional[ToolResult]) -> float:
         hallucination_case = case.get("hallucination_case") or {}
-        answer = hallucination_case.get("answer") or ""
-        grounded_payload = hallucination_case.get("grounded_payload") or case.get("csv_case") or case.get("rag_case") or {}
+        if not hallucination_case and rag_result is None:
+            return 1.0
+        answer = rag_result.answer if rag_result is not None else hallucination_case.get("answer") or ""
+        grounded_payload = (
+            (case.get("rag_case") or {}).get("retrieved_chunks")
+            or hallucination_case.get("grounded_payload")
+            or case.get("csv_case")
+            or {}
+        )
         return hallucination_risk_score(answer, grounded_payload)
+
+    def _execute_comparison_case(
+        self,
+        case: Dict[str, Any],
+        plan: Any,
+        rag_result: Optional[ToolResult],
+    ) -> Optional[ToolResult]:
+        if not case.get("comparison_case") or rag_result is None:
+            return None
+        plan_payload = plan.model_dump() if hasattr(plan, "model_dump") else plan.dict()
+        rag_payload = rag_result.model_dump() if hasattr(rag_result, "model_dump") else rag_result.dict()
+        return CompareTool().safe_run(
+            {
+                "query_plan": plan_payload,
+                "dependency_results": {"rag_qa_tool": rag_payload},
+            }
+        )
+
+    def _document_comparison_score(
+        self,
+        case: Dict[str, Any],
+        comparison_result: Optional[ToolResult],
+    ) -> float:
+        if comparison_result is None or not comparison_result.success:
+            return 0.0
+        expected = dict((case.get("comparison_case") or {}).get("expected") or {})
+        checks = [
+            table_value_score(expected.get("absolute_difference"), comparison_result.data.get("absolute_difference")),
+            table_value_score(expected.get("percentage_change"), comparison_result.data.get("percentage_change")),
+            exact_match(expected.get("direction"), comparison_result.data.get("direction")) if expected.get("direction") else 1.0,
+            1.0 if len(comparison_result.citations or []) >= int(expected.get("minimum_citations", 0)) else 0.0,
+        ]
+        return round(sum(checks) / float(len(checks)), 4)
 
     def _error_handling_score(self, case: Dict[str, Any], execution_plan: Any) -> float:
         error_case = case.get("error_case") or {}
@@ -409,6 +482,7 @@ class Evaluator:
             "csv_answer_accuracy": "Add focused pandas operation fixtures for failing table calculations.",
             "rag_citation_presence": "Require citation-bearing retrieval output before document narration.",
             "hallucination_safety": "Strengthen groundedness checks for unverified numbers or claims.",
+            "document_comparison_accuracy": "Improve cited financial metric extraction and cross-document arithmetic.",
             "error_handling": "Add safer fallback behavior for missing sources and malformed plans.",
         }
         for metric, accuracy in metric_accuracy.items():

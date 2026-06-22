@@ -139,7 +139,17 @@
       },
       "rag_case": {
         "requires_citations": true,
-        "citation_count": 1
+        "retrieved_chunks": [
+          {
+            "source_id": "annual_report_pdf",
+            "filename": "annual_report.pdf",
+            "source_type": "pdf",
+            "chunk_id": "annual_report_outline_1",
+            "page": 1,
+            "score": 0.93,
+            "content": "The annual report covers financial performance, operating highlights, principal risks, and the outlook for the next period."
+          }
+        ]
       }
     },
     {
@@ -172,13 +182,23 @@
       "expected": {
         "rewritten_contains": ["compare", "revenue"],
         "intent": "compare_documents",
-        "source_type": "table|document",
+        "source_type": "mixed",
         "tools": ["table_analysis_tool", "rag_qa_tool", "compare_tool"],
         "requires_citations": true
       },
       "rag_case": {
         "requires_citations": true,
-        "citation_count": 1
+        "retrieved_chunks": [
+          {
+            "source_id": "annual_report_pdf",
+            "filename": "annual_report.pdf",
+            "source_type": "pdf",
+            "chunk_id": "annual_report_revenue_1",
+            "page": 7,
+            "score": 0.92,
+            "content": "Revenue increased from USD 1,000 thousand in 2022 to USD 1,200 thousand in 2023, continuing the positive trend."
+          }
+        ]
       }
     }
   ]

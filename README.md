@@ -13,14 +13,14 @@ This project goes beyond a basic chatbot. It ingests structured files and docume
 - Query rewriting, query planning, source selection, tool planning, tool chaining, validation, and response narration.
 - Deterministic pandas calculations for numeric table answers.
 - Multi-chart Plotly generation with downloadable chart HTML and table CSV.
-- Multi-source document comparison with balanced evidence retrieval.
+- Multi-source document comparison with balanced evidence retrieval, cited financial values, normalized units, absolute differences, and percentage changes.
 - PDF table extraction, visual metadata, and optional OCR.
 - Local login/register with password hashing and per-user upload isolation.
 - SQLite-backed users, document metadata, job records, and audit events.
 - Bounded background jobs with progress, overload protection, and restart recovery.
 - Duplicate detection, role-aware uploads, rate limits, and malicious-content checks.
 - Chat history, Markdown export, JSONL logs, trace events, and prompt-injection warnings.
-- Evaluation benchmark framework for rewrite, intent, source, tool, CSV, RAG, hallucination, and error-handling checks.
+- Reproducible evaluation framework for rewrite, intent, source, tool, CSV, executed RAG, hallucination, multilingual finance, cited document comparison, and error-handling checks.
 - Streamlit UI with friendly errors and safe session state.
 
 ## Architecture
@@ -127,6 +127,14 @@ Run the benchmark framework:
 venv/bin/python evaluation/run_evaluation.py
 ```
 
+Run the same non-writing benchmark gate used by CI:
+
+```bash
+venv/bin/python evaluation/run_evaluation.py --check-only --minimum-accuracy 100
+```
+
+The default run always loads the committed benchmark corpus, including generated semantic table cases, multilingual financial cases, actual RAG execution, and cited numeric PDF comparison. It does not depend on private files under `data/uploads/`.
+
 ## Operations
 
 - Local and Docker runbook: `docs/operations.md`
@@ -189,7 +197,7 @@ data/
 - SQLite is used for local production-style durability. Postgres is the recommended next database for multi-instance deployment.
 - Background jobs are local in-process workers. Celery/RQ plus Redis would be the next step for distributed workers.
 - The local embedding model may fall back to hashed embeddings if the sentence-transformer model is unavailable locally.
-- Multi-source comparison is functional but still high-level; future versions can add richer financial trend modeling.
+- Numeric PDF comparison handles common financial statements with explicit metrics, periods, currencies, and scales; ambiguous values or incompatible currencies are returned with warnings instead of unsafe arithmetic.
 - URL loading depends on page accessibility and may fail for heavily scripted or blocked sites.
 
 ## Demo Flow
