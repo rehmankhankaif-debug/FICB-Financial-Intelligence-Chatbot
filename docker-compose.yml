@@ -1,0 +1,20 @@
+services:
+  financial-chatbot:
+    build: .
+    ports:
+      - "8501:8501"
+    env_file:
+      - .env
+    environment:
+      APP_ENV: container
+      APP_DATABASE_PATH: /app/data/app.sqlite3
+      BACKGROUND_WORKER_COUNT: "2"
+      BACKGROUND_MAX_PENDING_JOBS: "20"
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 4G

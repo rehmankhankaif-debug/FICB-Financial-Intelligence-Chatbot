@@ -1,0 +1,15 @@
+[server]
+# This workspace contains a large virtual environment and runtime data tree.
+# Watching them adds tens of thousands of files to every development scan and
+# can delay the first Streamlit render. Restart the app manually after edits.
+fileWatcherType = "none"
+runOnSave = false
+headless = false
+address = "localhost"
+port = 8501
+folderWatchBlacklist = ["venv", ".venv", "data", "__pycache__", ".pytest_cache"]
+
+[browser]
+gatherUsageStats = false
+serverAddress = "localhost"
+serverPort = 8501

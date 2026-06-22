@@ -1,0 +1,188 @@
+{
+  "cases": [
+    {
+      "id": "csv_manual_automatic_count",
+      "query": "manual aur automatic cars kitni hain bar graph bnao",
+      "language": "hi-en",
+      "available_sources": [{"source_id": "cars_csv", "filename": "cars.csv", "file_type": "csv"}],
+      "table_profiles": [
+        {
+          "source_id": "cars_csv",
+          "filename": "cars.csv",
+          "shape": [5, 1],
+          "columns": ["transmission"],
+          "normalized_columns": {"transmission": "transmission"},
+          "categorical_columns": ["transmission"],
+          "entity_candidate_columns": ["transmission"],
+          "metric_candidate_columns": [],
+          "result_candidate_columns": [],
+          "sample_values": {"transmission": ["Manual", "Automatic"]},
+          "semantic_summary": "Car table grouped by transmission."
+        }
+      ],
+      "expected": {
+        "rewritten_contains": ["manual", "automatic"],
+        "intent": "chart_request",
+        "source_id": "cars_csv",
+        "tools": ["table_analysis_tool", "chart_tool"]
+      },
+      "csv_case": {
+        "data": [
+          {"transmission": "Manual"},
+          {"transmission": "Automatic"},
+          {"transmission": "Manual"},
+          {"transmission": "Automatic"},
+          {"transmission": "Manual"}
+        ],
+        "operation": {
+          "operation": "groupby",
+          "group_by": ["transmission"],
+          "aggregations": [{"column": "transmission", "agg": "count", "alias": "count_rows"}],
+          "sort_by": "transmission",
+          "ascending": true
+        },
+        "expected": {
+          "data": {},
+          "table": [
+            {"transmission": "Automatic", "count_rows": 2},
+            {"transmission": "Manual", "count_rows": 3}
+          ]
+        }
+      }
+    },
+    {
+      "id": "csv_average_monthly_profit",
+      "query": "Average monthly profit batao",
+      "language": "hi-en",
+      "available_sources": [{"source_id": "sales_csv", "filename": "sales.csv", "file_type": "csv"}],
+      "table_profiles": [
+        {
+          "source_id": "sales_csv",
+          "filename": "sales.csv",
+          "shape": [3, 2],
+          "columns": ["month", "profit"],
+          "normalized_columns": {"month": "month", "profit": "profit"},
+          "numeric_columns": ["profit"],
+          "categorical_columns": ["month"],
+          "entity_candidate_columns": ["month"],
+          "metric_candidate_columns": ["profit"],
+          "result_candidate_columns": [],
+          "sample_values": {"month": ["Jan", "Feb"], "profit": [100, 200]},
+          "semantic_summary": "Monthly profit table."
+        }
+      ],
+      "expected": {
+        "rewritten_contains": ["profit"],
+        "intent": "table_analysis",
+        "source_id": "sales_csv",
+        "tools": ["table_analysis_tool"]
+      },
+      "csv_case": {
+        "data": [
+          {"month": "Jan", "profit": 100},
+          {"month": "Feb", "profit": 200},
+          {"month": "Mar", "profit": 300}
+        ],
+        "operation": {"operation": "aggregate", "column": "profit", "agg": "mean", "alias": "mean_profit"},
+        "expected": {
+          "data": {"value": 200.0, "aggregation": "mean", "column": "profit", "alias": "mean_profit"},
+          "table": [{"mean_profit": 200.0}]
+        }
+      }
+    },
+    {
+      "id": "csv_top_five_products_sales",
+      "query": "Top five products by sales",
+      "language": "en",
+      "available_sources": [{"source_id": "product_sales_csv", "filename": "product_sales.csv", "file_type": "csv"}],
+      "table_profiles": [
+        {
+          "source_id": "product_sales_csv",
+          "filename": "product_sales.csv",
+          "shape": [6, 2],
+          "columns": ["product", "sales"],
+          "normalized_columns": {"product": "product", "sales": "sales"},
+          "numeric_columns": ["sales"],
+          "categorical_columns": ["product"],
+          "entity_candidate_columns": ["product"],
+          "metric_candidate_columns": ["sales"],
+          "result_candidate_columns": [],
+          "sample_values": {"product": ["A", "B"], "sales": [500, 300]},
+          "semantic_summary": "Product sales table."
+        }
+      ],
+      "expected": {
+        "rewritten_contains": ["top", "products", "sales"],
+        "intent": "table_analysis",
+        "source_id": "product_sales_csv",
+        "tools": ["table_analysis_tool"]
+      },
+      "csv_case": {
+        "data": [
+          {"product": "A", "sales": 500},
+          {"product": "B", "sales": 300},
+          {"product": "C", "sales": 700},
+          {"product": "D", "sales": 100},
+          {"product": "E", "sales": 600},
+          {"product": "F", "sales": 200}
+        ],
+        "operation": {"operation": "top_k", "column": "sales", "sort_by": "sales", "k": 5},
+        "expected": {
+          "table": [
+            {"product": "C", "sales": 700},
+            {"product": "E", "sales": 600},
+            {"product": "A", "sales": 500},
+            {"product": "B", "sales": 300},
+            {"product": "F", "sales": 200}
+          ]
+        }
+      }
+    },
+    {
+      "id": "csv_virat_max_runs_sr",
+      "query": "Virat ke max runs aur strike rate batao",
+      "language": "hi-en",
+      "available_sources": [{"source_id": "ipl_csv", "filename": "ipl.csv", "file_type": "csv"}],
+      "table_profiles": [
+        {
+          "source_id": "ipl_csv",
+          "filename": "ipl.csv",
+          "shape": [3, 3],
+          "columns": ["batter", "batsman_runs", "sr"],
+          "normalized_columns": {"batter": "batter", "batsman_runs": "batsman_runs", "sr": "sr"},
+          "numeric_columns": ["batsman_runs", "sr"],
+          "categorical_columns": ["batter"],
+          "entity_candidate_columns": ["batter"],
+          "metric_candidate_columns": ["batsman_runs", "sr"],
+          "result_candidate_columns": [],
+          "sample_values": {"batter": ["Virat Kohli"], "batsman_runs": [72], "sr": [145.5]},
+          "semantic_summary": "IPL batting table."
+        }
+      ],
+      "expected": {
+        "rewritten_contains": ["virat kohli", "runs", "strike rate"],
+        "intent": "table_analysis",
+        "source_id": "ipl_csv",
+        "tools": ["table_analysis_tool"]
+      },
+      "csv_case": {
+        "data": [
+          {"batter": "Virat Kohli", "batsman_runs": 72, "sr": 145.5},
+          {"batter": "Virat Kohli", "batsman_runs": 84, "sr": 152.2},
+          {"batter": "Rohit Sharma", "batsman_runs": 65, "sr": 140.0}
+        ],
+        "operation": {
+          "operation": "aggregate",
+          "column": "batsman_runs",
+          "agg": "max",
+          "filters": [{"column": "batter", "operator": "equals", "value": "Virat Kohli"}],
+          "alias": "max_batsman_runs"
+        },
+        "expected": {
+          "data": {"value": 84.0, "aggregation": "max", "column": "batsman_runs", "alias": "max_batsman_runs"},
+          "table": [{"max_batsman_runs": 84.0}]
+        }
+      }
+    }
+  ]
+}

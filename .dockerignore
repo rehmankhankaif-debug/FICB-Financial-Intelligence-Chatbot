@@ -1,0 +1,17 @@
+.git
+.pytest_cache
+__pycache__
+*.pyc
+.DS_Store
+.env
+.env.*
+!.env.example
+venv
+.venv
+data/chroma/*
+data/history/*
+data/logs/*
+data/uploads/*
+data/*.db
+data/*.sqlite
+data/*.sqlite3

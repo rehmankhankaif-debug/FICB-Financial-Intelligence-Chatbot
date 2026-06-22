@@ -1,0 +1,41 @@
+{
+  "cases": [
+    {
+      "id": "rag_citation_presence",
+      "query": "What risk is mentioned in the report?",
+      "expected": {},
+      "rag_case": {
+        "requires_citations": true,
+        "citation_count": 1,
+        "retrieved_chunks": [
+          {
+            "source_id": "report",
+            "chunk_id": "risk_1",
+            "content": "The report identifies liquidity risk as a key concern."
+          }
+        ]
+      },
+      "hallucination_case": {
+        "answer": "The report identifies liquidity risk as a key concern.",
+        "grounded_payload": {
+          "content": "The report identifies liquidity risk as a key concern."
+        }
+      }
+    },
+    {
+      "id": "rag_grounded_number",
+      "query": "What growth rate is cited in the report?",
+      "expected": {},
+      "rag_case": {
+        "requires_citations": true,
+        "citation_count": 2
+      },
+      "hallucination_case": {
+        "answer": "Revenue growth was 12%.",
+        "grounded_payload": {
+          "value": "12%"
+        }
+      }
+    }
+  ]
+}
