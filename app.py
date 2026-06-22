@@ -130,6 +130,17 @@ def build_chat_history_markdown(history_records: List[Any]) -> str:
     return export_records_to_markdown(history_records)
 
 
+def latest_conversation_context() -> Dict[str, str]:
+    records = st.session_state.get("history_records") or []
+    if not records:
+        return {}
+    latest = records[-1]
+    return {
+        "previous_user_query": str(getattr(latest, "user_query", "") or ""),
+        "previous_answer": str(getattr(latest, "final_answer", "") or ""),
+    }
+
+
 @st.cache_resource(show_spinner=False)
 def get_tool_manager() -> ToolManager:
     return ToolManager()
@@ -771,7 +782,11 @@ def run_query_pipeline(user_query: str, language_preference: Optional[str], top_
                 "llm_budget_optimized",
                 {"reason": "obvious_single_document_summary", "reserved_for": "final_narration"},
             )
-        rewritten_query = QueryRewriterAgent(gemini_client=planning_client).rewrite(user_query, language=rewrite_language)
+        rewritten_query = QueryRewriterAgent(gemini_client=planning_client).rewrite(
+            user_query,
+            language=rewrite_language,
+            conversation_context=latest_conversation_context(),
+        )
         recorder.record_event(
             span.trace_id,
             "query_rewritten",
@@ -1044,8 +1059,11 @@ def render_ingestion_jobs() -> None:
     for state in jobs:
         label = "{0} ({1})".format(state.metadata.get("filename") or state.source_id or state.job_id, state.status)
         st.progress(state.progress, text=label)
+    st.caption("Checking ingestion status automatically while jobs are running.")
     if st.button("Refresh ingestion status"):
         st.rerun()
+    time.sleep(1)
+    st.rerun()
 
 
 def render_source_list() -> None:

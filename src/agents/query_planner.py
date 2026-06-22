@@ -39,12 +39,41 @@ AGGREGATION_GROUPS = {
     "sum": {"contribute", "contributes", "contribution", "sum", "total"},
 }
 
-DOCUMENT_SIGNALS = {"report", "document", "pdf", "docx", "annual"}
+DOCUMENT_SIGNALS = {"report", "document", "pdf", "docx", "annual", "cv", "resume", "profile"}
 SUMMARY_SIGNALS = {"outline", "summarise", "summarize", "summary", "key points"}
 CHART_SIGNALS = {"chart", "graph", "plot", "bar graph", "bar"}
 COMPARISON_SIGNALS = {"compare", "comparison", "versus", "vs"}
 URL_SIGNALS = {"http://", "https://", "url", "link", "online"}
 DATA_REFERENCE_SIGNALS = {"csv", "data", "dataset", "file", "table", "uploaded"}
+DOCUMENT_REFERENCE_SIGNALS = {"attached", "attachment", "cv", "document", "pdf", "profile", "report", "resume", "uploaded"}
+PROFILE_DETAIL_WORDS = {
+    "about",
+    "background",
+    "candidate",
+    "contact",
+    "does",
+    "education",
+    "email",
+    "experience",
+    "from",
+    "he",
+    "her",
+    "his",
+    "location",
+    "name",
+    "owner",
+    "phone",
+    "profile",
+    "project",
+    "projects",
+    "role",
+    "she",
+    "skill",
+    "skills",
+    "where",
+    "who",
+    "work",
+}
 TABLE_ANALYSIS_SIGNALS = {
     "average",
     "avg",
@@ -285,6 +314,8 @@ class QueryPlannerAgent:
             confidence = max(confidence, normalize_confidence(semantic.get("confidence")))
         if self._is_contextual_document_summary_query(text, available_sources):
             confidence = max(confidence, 0.76)
+        if self._is_contextual_document_question(text, available_sources):
+            confidence = max(confidence, 0.74)
         if self._is_contextual_table_summary_query(text, available_sources):
             confidence = max(confidence, 0.72)
 
@@ -344,6 +375,8 @@ class QueryPlannerAgent:
             return "summarize_document"
         if any(signal in text for signal in SUMMARY_SIGNALS) and any(signal in text for signal in DOCUMENT_SIGNALS):
             return "summarize_document"
+        if self._is_contextual_document_question(text, available_sources or []):
+            return "rag_question"
         if any(signal in text for signal in DOCUMENT_SIGNALS) and self._has_source_type(available_sources or [], DOCUMENT_FILE_TYPES) and not self._has_source_type(available_sources or [], TABLE_FILE_TYPES):
             return "rag_question"
         if any(signal in text for signal in DOCUMENT_SIGNALS) and not metrics:
@@ -499,6 +532,13 @@ class QueryPlannerAgent:
             plan.clarification_question = None
             plan.confidence = max(normalize_confidence(plan.confidence), 0.76)
             plan.reasoning_short = "Summary request stabilized to document summarization because a document source is available."
+        if should_force_document and self._is_contextual_document_question(text, available_sources):
+            plan.intent = "rag_question"
+            plan.required_source_type = "document"
+            plan.clarification_needed = False
+            plan.clarification_question = None
+            plan.confidence = max(normalize_confidence(plan.confidence), 0.74)
+            plan.reasoning_short = "Question stabilized to document retrieval because the user is asking about an uploaded document."
         return plan
 
     def _trend_aggregation(self, metrics: List[Dict[str, Any]]) -> Optional[str]:
@@ -545,6 +585,43 @@ class QueryPlannerAgent:
         has_table_source = self._has_source_type(available_sources, TABLE_FILE_TYPES)
         has_table_signal = any(signal in text for signal in DATA_REFERENCE_SIGNALS | TABLE_ANALYSIS_SIGNALS | FINANCE_SURVEY_SIGNALS)
         return not (has_table_source and has_table_signal)
+
+    def _is_contextual_document_question(self, text: str, available_sources: List[Any]) -> bool:
+        if not self._has_source_type(available_sources, DOCUMENT_FILE_TYPES):
+            return False
+        if any(signal in text for signal in SUMMARY_SIGNALS | URL_SIGNALS | COMPARISON_SIGNALS | CHART_SIGNALS):
+            return False
+        token_set = set(_tokens(text))
+        has_document_reference = any(signal in text for signal in DOCUMENT_SIGNALS | DOCUMENT_REFERENCE_SIGNALS)
+        single_document_follow_up = self._is_single_document_profile_follow_up(token_set, available_sources)
+        if not has_document_reference:
+            return single_document_follow_up
+        has_table_source = self._has_source_type(available_sources, TABLE_FILE_TYPES)
+        has_table_signal = any(signal in text for signal in DATA_REFERENCE_SIGNALS | TABLE_ANALYSIS_SIGNALS | FINANCE_SURVEY_SIGNALS)
+        if has_table_source and has_table_signal:
+            return False
+        question_words = {"who", "what", "where", "when", "which", "whose", "owner", "name", "from"}
+        detail_words = PROFILE_DETAIL_WORDS | {"company", "lives"}
+        return bool(token_set.intersection(question_words | detail_words))
+
+    def _is_single_document_profile_follow_up(self, token_set: set, available_sources: List[Any]) -> bool:
+        document_sources = []
+        for source in available_sources or []:
+            payload = source if isinstance(source, dict) else self._source_payloads([source])[0]
+            file_type = str(payload.get("file_type") or payload.get("source_type") or "").lower()
+            metadata = payload.get("metadata") if isinstance(payload.get("metadata"), dict) else {}
+            source_category = str(payload.get("source_category") or payload.get("category") or metadata.get("source_category") or "").lower()
+            if file_type in DOCUMENT_FILE_TYPES or source_category == "document":
+                document_sources.append(payload)
+        if len(document_sources) != 1 or self._has_source_type(available_sources, TABLE_FILE_TYPES):
+            return False
+        filename = str(document_sources[0].get("filename") or "").lower()
+        metadata = document_sources[0].get("metadata") if isinstance(document_sources[0].get("metadata"), dict) else {}
+        original_filename = str(metadata.get("original_filename") or "").lower()
+        name_blob = "{0} {1}".format(filename, original_filename)
+        if not any(term in name_blob for term in {"cv", "resume", "profile"}):
+            return False
+        return bool(token_set.intersection(PROFILE_DETAIL_WORDS))
 
     def _is_contextual_table_summary_query(self, text: str, available_sources: List[Any]) -> bool:
         if not self._has_source_type(available_sources, TABLE_FILE_TYPES):

@@ -3,7 +3,7 @@ from __future__ import annotations
 import pandas as pd
 
 import app
-from app import build_chat_history_markdown, build_security_blocked_pipeline_result, chart_export_html, dataframe_from_table, is_simple_single_document_summary, language_preference_value, source_category, stream_text_chunks, table_export_csv
+from app import build_chat_history_markdown, build_security_blocked_pipeline_result, chart_export_html, dataframe_from_table, is_simple_single_document_summary, language_preference_value, latest_conversation_context, source_category, stream_text_chunks, table_export_csv
 from src.models import ChatHistoryRecord, Citation, DocumentSource
 
 
@@ -95,6 +95,29 @@ def test_security_blocked_pipeline_result_is_history_compatible() -> None:
     assert "cannot follow instructions" in result["final_response"].answer
 
 
+def test_latest_conversation_context_returns_previous_turn(monkeypatch) -> None:
+    class SessionState(dict):
+        __getattr__ = dict.__getitem__
+        __setattr__ = dict.__setitem__
+
+    session_state = SessionState(
+        {
+            "history_records": [
+                ChatHistoryRecord(
+                    user_query="What is the profit?",
+                    final_answer="The profit is 2200.",
+                )
+            ]
+        }
+    )
+    monkeypatch.setattr(app.st, "session_state", session_state)
+
+    assert latest_conversation_context() == {
+        "previous_user_query": "What is the profit?",
+        "previous_answer": "The profit is 2200.",
+    }
+
+
 def test_restore_duplicate_source_reuses_existing_id_and_restores_missing_file(tmp_path, monkeypatch) -> None:
     fresh_path = tmp_path / "fresh.pdf"
     fresh_path.write_bytes(b"pdf-content")
@@ -165,3 +188,41 @@ def test_reprocess_pdf_source_queues_existing_pdf(tmp_path, monkeypatch) -> None
     assert len(queued) == 1
     assert queued[0].source_id == "pdf-1"
     assert queued[0].status == "uploaded"
+
+
+def test_render_ingestion_jobs_auto_refreshes_while_jobs_are_active(monkeypatch) -> None:
+    class SessionState(dict):
+        __getattr__ = dict.__getitem__
+        __setattr__ = dict.__setitem__
+
+    class FakeJobState:
+        def __init__(self) -> None:
+            self.job_id = "job-1"
+            self.source_id = "pdf-1"
+            self.status = "processing"
+            self.progress = 10
+            self.metadata = {"filename": "report.pdf"}
+
+    class FakeJobManager:
+        def get_job(self, job_id):
+            return FakeJobState() if job_id == "job-1" else None
+
+    session_state = SessionState({"active_ingestion_jobs": {"job-1": "pdf-1"}})
+    reruns = []
+    progress_calls = []
+    captions = []
+
+    monkeypatch.setattr(app.st, "session_state", session_state)
+    monkeypatch.setattr(app, "get_job_manager", lambda: FakeJobManager())
+    monkeypatch.setattr(app.st, "markdown", lambda *args, **kwargs: None)
+    monkeypatch.setattr(app.st, "progress", lambda *args, **kwargs: progress_calls.append((args, kwargs)))
+    monkeypatch.setattr(app.st, "caption", lambda text: captions.append(text))
+    monkeypatch.setattr(app.st, "button", lambda *args, **kwargs: False)
+    monkeypatch.setattr(app.time, "sleep", lambda seconds: None)
+    monkeypatch.setattr(app.st, "rerun", lambda: reruns.append(True))
+
+    app.render_ingestion_jobs()
+
+    assert progress_calls
+    assert captions == ["Checking ingestion status automatically while jobs are running."]
+    assert reruns == [True]

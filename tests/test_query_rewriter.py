@@ -83,3 +83,17 @@ def test_spanish_excel_revenue_trend_preserves_periods() -> None:
 
     assert "revenue trends" in rewritten.rewritten_query.lower()
     assert "q1 and q2" in rewritten.rewritten_query.lower()
+
+
+def test_follow_up_reference_reuses_previous_user_question() -> None:
+    rewritten = QueryRewriterAgent(gemini_client=GeminiClient(api_key="", client=None)).rewrite(
+        "what about my previous asked question?",
+        conversation_context={
+            "previous_user_query": "What is the total revenue in the uploaded CSV?",
+            "previous_answer": "The total revenue is 124000.",
+        },
+    )
+
+    assert rewritten.rewritten_query == "What is the total revenue in the uploaded CSV?"
+    assert rewritten.confidence >= 0.88
+    assert any("follow-up reference" in note.lower() for note in rewritten.notes)

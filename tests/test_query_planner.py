@@ -106,6 +106,89 @@ def test_short_summary_request_repairs_mocked_gemini_general_finance_when_docume
     assert plan.confidence >= 0.76
 
 
+def test_cv_question_routes_to_document_rag_when_pdf_exists() -> None:
+    plan = QueryPlannerAgent(gemini_client=GeminiClient(api_key="", client=None)).plan(
+        "tell me the owner name of cv and what he does and where is he from?",
+        _rewritten("tell me the owner name of cv and what he does and where is he from?"),
+        available_sources=[{"source_id": "cv", "filename": "Kaif_Rehman_Khan_CV.pdf", "file_type": "pdf", "source_category": "document"}],
+    )
+
+    assert plan.intent == "rag_question"
+    assert plan.required_source_type == "document"
+    assert plan.clarification_needed is False
+    assert plan.confidence >= 0.74
+
+
+def test_cv_question_repairs_mocked_gemini_general_finance_when_document_exists() -> None:
+    agent = QueryPlannerAgent(
+        gemini_client=FakeGemini(
+            {
+                "intent": "general_finance",
+                "confidence": 0.24,
+                "clarification_needed": True,
+                "clarification_question": "Ask about a finance term.",
+            }
+        )
+    )
+
+    plan = agent.plan(
+        "tell me the owner name of cv and what he does and where is he from?",
+        _rewritten("tell me the owner name of cv and what he does and where is he from?"),
+        available_sources=[{"source_id": "cv", "filename": "Kaif_Rehman_Khan_CV.pdf", "file_type": "pdf", "source_category": "document"}],
+    )
+
+    assert plan.intent == "rag_question"
+    assert plan.required_source_type == "document"
+    assert plan.clarification_needed is False
+    assert plan.confidence >= 0.74
+
+
+def test_cv_question_repairs_low_confidence_gemini_general_finance_without_clarification() -> None:
+    agent = QueryPlannerAgent(
+        gemini_client=FakeGemini(
+            {
+                "intent": "general_finance",
+                "confidence": 0.49,
+                "clarification_needed": False,
+                "clarification_question": None,
+            }
+        )
+    )
+
+    plan = agent.plan(
+        "Owner of cv and what he does and where is he from?",
+        _rewritten("Owner of cv and what he does and where is he from?", "Owner of cv and what he does and where is he from?"),
+        available_sources=[{"source_id": "cv", "filename": "Kaif_Rehman_Khan_CV.pdf", "file_type": "pdf", "source_category": "document"}],
+    )
+
+    assert plan.intent == "rag_question"
+    assert plan.required_source_type == "document"
+    assert plan.clarification_needed is False
+    assert plan.confidence >= 0.74
+
+
+def test_single_resume_follow_up_without_explicit_document_reference_routes_to_rag() -> None:
+    agent = QueryPlannerAgent(gemini_client=GeminiClient(api_key="", client=None))
+
+    plan = agent.plan(
+        "Tell about his projects",
+        _rewritten("Tell about his projects", "Tell about his projects"),
+        available_sources=[
+            {
+                "source_id": "cv",
+                "filename": "Kaif_Rehman_Khan_CV.pdf",
+                "file_type": "pdf",
+                "source_category": "document",
+                "metadata": {"original_filename": "Kaif Rehman Khan CV.pdf"},
+            }
+        ],
+    )
+
+    assert plan.intent == "rag_question"
+    assert plan.required_source_type == "document"
+    assert plan.clarification_needed is False
+
+
 def test_short_summary_request_uses_table_summary_when_only_csv_exists() -> None:
     plan = QueryPlannerAgent(gemini_client=GeminiClient(api_key="", client=None)).plan(
         "summary please",

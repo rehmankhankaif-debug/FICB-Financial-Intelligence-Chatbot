@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from typing import Any, Dict, List
 
 from src.models.document import RetrievedChunk
@@ -79,7 +80,7 @@ class RagQATool(BaseTool):
                     },
                 )
             citations = CitationBuilder().build(chunks)
-            answer = self._extractive_answer(chunks)
+            answer = self._extractive_answer_for_query(query_plan, chunks)
             return ToolResult(
                 success=True,
                 tool_name=self.name,
@@ -126,8 +127,107 @@ class RagQATool(BaseTool):
         return []
 
     def _extractive_answer(self, chunks: List[RetrievedChunk]) -> str:
+        return self._extractive_answer_for_query(QueryPlan(), chunks)
+
+    def _extractive_answer_for_query(self, query_plan: QueryPlan, chunks: List[RetrievedChunk]) -> str:
+        profile_answer = self._profile_answer(query_plan, chunks)
+        if profile_answer:
+            return profile_answer
         answer = build_extractive_answer([clean_document_text(chunk.content) for chunk in chunks[:4]])
         return answer or "Information not found in the retrieved document context."
+
+    def _profile_answer(self, query_plan: QueryPlan, chunks: List[RetrievedChunk]) -> str:
+        query_text = "{0} {1}".format(query_plan.original_query or "", query_plan.rewritten_query or "").lower()
+        if not any(term in query_text for term in {"cv", "resume", "profile", "owner", "name", "who", "where", "projects", "skills", "experience"}):
+            return ""
+
+        combined = "\n".join(clean_document_text(chunk.content) for chunk in chunks if chunk.content).strip()
+        upper = combined.upper()
+        if not combined or not any(term in upper for term in {"PROFESSIONAL SUMMARY", "TECHNICAL SKILLS", "PROFESSIONAL EXPERIENCE"}):
+            return ""
+
+        ask_name = any(term in query_text for term in {"owner", "name", "who", "whose"})
+        ask_role = any(term in query_text for term in {"what does", "what he does", "what she does", "profession", "role", "work", "does he do", "does she do"})
+        ask_location = any(term in query_text for term in {"where", "from", "location"})
+        ask_projects = "project" in query_text
+        ask_skills = "skill" in query_text
+
+        name = self._extract_profile_name(combined)
+        role = self._extract_profile_role(combined)
+        location = self._extract_profile_location(combined)
+        projects = self._extract_profile_bullets(combined, "KEY PROJECTS & ACHIEVEMENTS", 3)
+        skills = self._extract_profile_skills(combined)
+
+        parts: List[str] = []
+        if ask_name and name:
+            parts.append("{0} is the owner of this CV.".format(name))
+        if ask_role and role:
+            subject = name or "The candidate"
+            parts.append("{0} is {1}.".format(subject, role))
+        if ask_location and location:
+            subject = name or "The candidate"
+            parts.append("{0} is from {1}.".format(subject, location))
+        if ask_projects and projects:
+            parts.append("Key projects include {0}.".format("; ".join(projects)))
+        if ask_skills and skills:
+            parts.append("Core skills include {0}.".format(", ".join(skills)))
+        return " ".join(parts).strip()
+
+    def _extract_profile_name(self, text: str) -> str:
+        match = re.search(r"^\s*([A-Z][A-Z ]{3,}?)(?=\s+\+?\d|\s+[\w.+-]+@|\s+\|)", text)
+        if not match:
+            return ""
+        return match.group(1).title().strip()
+
+    def _extract_profile_role(self, text: str) -> str:
+        match = re.search(r"PROFESSIONAL SUMMARY\s+(.*?)(?:\n[A-Z][A-Z &/]{3,}|\Z)", text, flags=re.IGNORECASE | re.DOTALL)
+        if not match:
+            return ""
+        summary = " ".join(match.group(1).split())
+        role_match = re.search(r"([A-Z][A-Za-z/& -]{2,80}?) with ", summary)
+        if role_match:
+            return role_match.group(1).strip()
+        sentence_match = re.search(r"([A-Z][^.]{8,140}\.)", summary)
+        if sentence_match:
+            return sentence_match.group(1).rstrip(".")
+        return summary[:120].rsplit(" ", 1)[0].strip() if summary else ""
+
+    def _extract_profile_location(self, text: str) -> str:
+        match = re.search(r"\|\s*([A-Za-z][A-Za-z .'-]+,\s*[A-Za-z][A-Za-z .'-]+,\s*[A-Za-z][A-Za-z .'-]+)\s+PROFESSIONAL SUMMARY", text)
+        if match:
+            return match.group(1).strip()
+        for line in text.splitlines()[:4]:
+            compact = " ".join(line.split())
+            if compact.count(",") >= 2 and "@" not in compact and "linkedin" not in compact.lower():
+                return compact.strip(" |")
+        return ""
+
+    def _extract_profile_bullets(self, text: str, heading: str, limit: int) -> List[str]:
+        match = re.search(
+            r"{0}\s+(.*?)(?:\n[A-Z][A-Z &/]{{3,}}|\Z)".format(re.escape(heading)),
+            text,
+            flags=re.IGNORECASE | re.DOTALL,
+        )
+        if not match:
+            return []
+        section = match.group(1)
+        bullets = []
+        normalized = re.sub(r"\s*[·•]\s*", "\n- ", section)
+        for raw_line in normalized.splitlines():
+            line = raw_line.strip().lstrip("- ").strip()
+            if line:
+                bullets.append(line[:160].rsplit(" ", 1)[0].rstrip() if len(line) > 160 else line)
+            if len(bullets) >= limit:
+                break
+        return bullets
+
+    def _extract_profile_skills(self, text: str) -> List[str]:
+        match = re.search(r"TECHNICAL SKILLS\s+(.*?)(?:\n[A-Z][A-Z &/]{3,}|\Z)", text, flags=re.IGNORECASE | re.DOTALL)
+        if not match:
+            return []
+        section = " ".join(match.group(1).split())
+        pieces = [item.strip(" .,-") for item in re.split(r"[,|/]", section) if item.strip()]
+        return pieces[:8]
 
     def _chunk_payload(self, chunk: RetrievedChunk) -> Dict[str, Any]:
         payload = _dump_model(chunk)

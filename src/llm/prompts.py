@@ -15,7 +15,7 @@ If the request is ambiguous, set clarification_needed true and provide a concise
 """.strip()
 
 
-def build_query_rewrite_prompt(query: str, language: str) -> str:
+def build_query_rewrite_prompt(query: str, language: str, conversation_context: Dict[str, Any] | None = None) -> str:
     schema = {
         "original_query": query,
         "rewritten_query": "clean analytical query",
@@ -24,19 +24,30 @@ def build_query_rewrite_prompt(query: str, language: str) -> str:
         "confidence": 0.0,
         "notes": [],
     }
+    context_block = ""
+    if conversation_context:
+        context_block = """
+
+Conversation context:
+{context}
+
+If the new query refers to the previous question, previous answer, "that", "it", or another follow-up reference,
+rewrite it into a standalone query using this context.
+""".format(context=json.dumps(conversation_context, indent=2, default=str))
     return """
 You are rewriting a financial/data analysis user query.
 
 {rules}
 
 Preserve intent, entities, metrics, output format, and language preference.
+{context_block}
 
 Schema:
 {schema}
 
 User query:
 {query}
-""".format(rules=BASE_SAFETY_RULES, schema=json.dumps(schema, indent=2), query=query)
+""".format(rules=BASE_SAFETY_RULES, context_block=context_block, schema=json.dumps(schema, indent=2), query=query)
 
 
 def build_query_plan_prompt(

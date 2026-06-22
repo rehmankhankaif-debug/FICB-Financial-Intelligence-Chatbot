@@ -21,6 +21,15 @@ NORMALIZED_PHRASES = {
     "manual automatic cars": "Count manual and automatic cars and prepare a bar chart.",
 }
 
+FOLLOW_UP_REFERENCE_PATTERNS = [
+    r"\bprevious (asked )?question\b",
+    r"\bmy last question\b",
+    r"\bwhat about (my )?previous\b",
+    r"\bwhat about (that|it)\b",
+    r"\bthe one i asked before\b",
+    r"\bthe question i asked before\b",
+]
+
 
 def _model_payload(model: RewrittenQuery) -> Dict[str, Any]:
     if hasattr(model, "model_dump"):
@@ -32,7 +41,12 @@ class QueryRewriterAgent:
     def __init__(self, gemini_client: Optional[GeminiClient] = None) -> None:
         self.gemini_client = gemini_client or GeminiClient()
 
-    def rewrite(self, query: str, language: Optional[str] = None) -> RewrittenQuery:
+    def rewrite(
+        self,
+        query: str,
+        language: Optional[str] = None,
+        conversation_context: Optional[Dict[str, Any]] = None,
+    ) -> RewrittenQuery:
         try:
             original_query = query or ""
             detected_language = normalize_language_code(language or detect_language(original_query))
@@ -47,9 +61,9 @@ class QueryRewriterAgent:
                     notes=["Empty query requires clarification."],
                 )
 
-            fallback = _model_payload(self._fallback_rewrite(original_query, detected_language))
+            fallback = _model_payload(self._fallback_rewrite(original_query, detected_language, conversation_context))
             if self.gemini_client.is_available():
-                prompt = build_query_rewrite_prompt(original_query, detected_language)
+                prompt = build_query_rewrite_prompt(original_query, detected_language, conversation_context=conversation_context)
                 payload = self.gemini_client.generate_json(prompt, fallback=fallback)
                 return self._from_payload(payload, fallback)
             return RewrittenQuery(**fallback)
@@ -72,12 +86,34 @@ class QueryRewriterAgent:
             merged["notes"] = [str(merged.get("notes"))]
         return RewrittenQuery(**merged)
 
-    def _fallback_rewrite(self, query: str, detected_language: str) -> RewrittenQuery:
+    def _fallback_rewrite(
+        self,
+        query: str,
+        detected_language: str,
+        conversation_context: Optional[Dict[str, Any]] = None,
+    ) -> RewrittenQuery:
         clean_query = re.sub(r"\s+", " ", query).strip()
         lower = clean_query.lower()
         notes = ["Used deterministic rewrite fallback."]
         rewritten = clean_query
         confidence = 0.62
+
+        previous_query = str((conversation_context or {}).get("previous_user_query") or "").strip()
+        previous_answer = str((conversation_context or {}).get("previous_answer") or "").strip()
+        if previous_query and self._looks_like_follow_up_reference(lower):
+            rewritten = previous_query
+            confidence = 0.88
+            notes.append("Resolved follow-up reference using the previous user question.")
+            if previous_answer:
+                notes.append("Previous assistant answer was available for context.")
+            return RewrittenQuery(
+                original_query=query,
+                rewritten_query=rewritten,
+                language=detected_language,
+                detected_language=detected_language,
+                confidence=confidence,
+                notes=notes,
+            )
 
         if detected_language == "es":
             spanish_rewrite = self._spanish_financial_rewrite(lower)
@@ -116,6 +152,10 @@ class QueryRewriterAgent:
             confidence=confidence,
             notes=notes,
         )
+
+    def _looks_like_follow_up_reference(self, normalized_query: str) -> bool:
+        compact = re.sub(r"\s+", " ", normalized_query or "").strip()
+        return any(re.search(pattern, compact, flags=re.IGNORECASE) for pattern in FOLLOW_UP_REFERENCE_PATTERNS)
 
     def _spanish_financial_rewrite(self, text: str) -> str:
         table_context = any(term in text for term in ["csv", "excel", "tabla", "datos", "archivo"])

@@ -111,3 +111,41 @@ def test_rag_qa_tool_warns_on_prompt_injection_like_document_text() -> None:
     assert result.success is True
     assert any("Prompt-injection risk detected" in warning for warning in result.warnings)
     assert result.metadata["prompt_injection_risk"]["is_suspicious"] is True
+
+
+def test_rag_qa_tool_answers_resume_identity_questions_without_gemini() -> None:
+    chunks = [
+        RetrievedChunk(
+            chunk_id="resume_1",
+            source_id="resume",
+            filename="Kaif_Rehman_Khan_CV.pdf",
+            page=1,
+            score=0.94,
+            content=(
+                "KAIF REHMAN KHAN +91-8279589541 | rehmankhankaif@gmail.com | linkedin.com/in/kaifrehmankhan | "
+                "Saharanpur, Uttar Pradesh, India\n"
+                "PROFESSIONAL SUMMARY\n"
+                "AI/ML Engineer with hands-on experience in machine learning, NLP, and analytics."
+            ),
+        ),
+        RetrievedChunk(
+            chunk_id="resume_2",
+            source_id="resume",
+            filename="Kaif_Rehman_Khan_CV.pdf",
+            page=2,
+            score=0.88,
+            content=(
+                "KEY PROJECTS & ACHIEVEMENTS\n"
+                "· Containerised ML project using Docker and deployed via FastAPI for real-time inference.\n"
+                "· NLP Analytics Dashboard created for large-scale customer review analysis."
+            ),
+        ),
+    ]
+    plan = QueryPlan(intent="rag_question", original_query="Owner of cv and what he does and where is he from?")
+
+    result = RagQATool().safe_run({"query_plan": _dump(plan), "retrieved_chunks": [_dump(chunk) for chunk in chunks]})
+
+    assert result.success is True
+    assert "Kaif Rehman Khan is the owner of this CV." in result.answer
+    assert "AI/ML Engineer" in result.answer
+    assert "Saharanpur, Uttar Pradesh, India" in result.answer
